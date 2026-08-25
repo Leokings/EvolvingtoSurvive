@@ -1105,7 +1105,6 @@ button:disabled { cursor: not-allowed; opacity: .46; }
   .gameplay-frame > .toast { left: 14px; right: 14px; top: 72px; width: auto; transform: none; }
 }
 
-/* Guided play keeps the ancestry map and one required command in view. */
 .hud-player-controls {
   min-width: 0;
   display: flex;
@@ -1114,22 +1113,6 @@ button:disabled { cursor: not-allowed; opacity: .46; }
   gap: 8px;
 }
 .hud-player-controls .commander-chip { flex: 1; }
-.interface-toggle {
-  min-height: 32px;
-  flex: none;
-  border: 1px solid rgba(174,241,109,.34);
-  padding: 0 9px;
-  background: rgba(174,241,109,.08);
-  color: #dff2d3;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.interface-toggle:hover,
-.interface-toggle:focus-visible { border-color: var(--acid); color: var(--acid); outline: 0; }
-
 .turn-loop {
   display: grid;
   grid-template-columns: repeat(4,minmax(0,1fr));
@@ -1219,24 +1202,6 @@ button:disabled { cursor: not-allowed; opacity: .46; }
 }
 .waiting-command { border-color: rgba(157,189,169,.2); background: rgba(255,255,255,.025); box-shadow: inset 2px 0 #70877a; }
 .waiting-command > small { color: #b8c7be; }
-.phase-details-toggle {
-  width: 100%;
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 7px;
-  border: 1px solid rgba(161,208,177,.17);
-  padding: 0 9px;
-  background: rgba(255,255,255,.025);
-  color: #c4d2c9;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .07em;
-  cursor: pointer;
-}
-.phase-details-toggle span { color: var(--acid); font-size: 15px; }
-.phase-detail-stack.is-hidden { display: none; }
 .phase-detail-stack > footer {
   display: flex;
   justify-content: space-between;
@@ -1250,76 +1215,18 @@ button:disabled { cursor: not-allowed; opacity: .46; }
 .phase-detail-stack > footer span i { width: 4px; height: 4px; border-radius: 50%; background: var(--acid); }
 
 .mutation-deck-tools { display: flex; align-items: center; gap: 9px; }
-.guided-lab-close {
-  min-height: 28px;
-  border: 1px solid rgba(176,215,188,.2);
-  padding: 0 8px;
-  background: transparent;
-  color: #c1d0c7;
-  font-size: 9px;
-  cursor: pointer;
-}
-.guided-lab-roadmap {
-  min-width: 0;
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(5,minmax(0,1fr));
-  gap: 4px;
-  margin: 0 8px;
-  padding: 0;
-  list-style: none;
-  counter-reset: lab-step;
-}
-.guided-lab-roadmap li {
-  min-width: 0;
-  overflow: hidden;
-  color: #a6b8ad;
-  font-size: 9px;
-  font-weight: 700;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.guided-lab-roadmap li::before { counter-increment: lab-step; content: counter(lab-step) " "; color: var(--acid); }
-
-.guided-mode .roster-species.retired,
-.guided-mode .empty-species-slot,
-.guided-mode .rival-radar,
-.guided-mode .species-capacity,
-.guided-mode .concede-zone,
-.guided-mode .roster-portrait-command { display: none; }
-.guided-mode .ecosystem-rail { padding-bottom: 14px; }
-.guided-mode .species-slots { padding-top: 12px; }
-.guided-mode .phase-console { border-color: rgba(174,241,109,.25); }
-.guided-mode.lab-closed .mutation-deck { display: none; }
-
-@media (min-width: 861px) {
-  .guided-mode.lab-closed { grid-template-rows: 76px minmax(0,1fr) 36px; }
-  .guided-mode.lab-closed .ecosystem-rail { grid-row: 2; }
-  .guided-mode.lab-closed .ancestry-theater,
-  .guided-mode.lab-closed .intel-rail { grid-row: 2; }
-  .guided-mode.lab-closed .hud-event-ticker { grid-row: 3; }
-}
 
 @media (max-width: 1180px) {
   .hud-player-controls { gap: 5px; }
-  .interface-toggle { padding: 0 6px; font-size: 9px; }
-  .guided-lab-roadmap { margin: 0 4px; }
-  .guided-lab-roadmap li { font-size: 9px; }
 }
 
 @media (max-width: 860px) {
   .hud-player-controls .commander-chip { max-width: 130px; }
-  .guided-mode .intel-rail { grid-template-columns: 1fr; }
-  .guided-mode.lab-closed .mutation-deck { display: none; }
-  .guided-mode.lab-open .mutation-deck-header { flex-wrap: wrap; padding: 9px 11px; }
-  .guided-mode.lab-open .guided-lab-roadmap { order: 3; flex-basis: 100%; margin: 4px 0 0; }
 }
 
 @media (max-width: 480px) {
   .hud-player-controls .commander-chip span { display: none; }
   .hud-player-controls .commander-chip { max-width: 92px; padding-left: 6px; }
-  .interface-toggle { min-height: 30px; padding: 0 5px; }
   .turn-loop li { font-size: 9px; }
 }
 
@@ -1574,8 +1481,6 @@ button:disabled { cursor: not-allowed; opacity: .46; }
 }
 .end-run-command strong { color: #ff9b8d; font-size: 11px; letter-spacing: .08em; }.end-run-command small { margin-top: 3px; color: #c9aaa5; font-size: 9px; }
 .concede-zone > .retire-species-command { width: 100%; min-height: 29px; border: 0; padding: 4px; background: transparent; color: #b5c3ba; font-size: 9px; text-decoration: underline; cursor: pointer; }
-.guided-mode .concede-zone { display: grid; }
-.guided-mode .concede-zone .retire-species-command { display: none; }
 .end-run-backdrop { z-index: 110; }
 .end-run-dialog { width: min(590px,100%); max-height: calc(100svh - 36px); overflow-y: auto; border: 1px solid rgba(255,126,107,.45); padding: 26px; background: linear-gradient(145deg,#17100d,#07120e 58%); box-shadow: 0 35px 100px rgba(0,0,0,.68); }
 .end-run-dialog > header { display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 14px; padding-bottom: 17px; border-bottom: 1px solid rgba(255,126,107,.2); }.end-run-dialog > header > span { width: 46px; height: 46px; display: grid; place-items: center; border: 1px solid var(--danger); color: var(--danger); font-size: 23px; }.end-run-dialog header small { color: var(--danger); font-size: 10px; font-weight: 850; letter-spacing: .13em; }.end-run-dialog h2 { margin: 5px 0 0; color: #fff3f0; font: 400 27px Georgia,serif; }.end-run-dialog > p { margin: 18px 0; color: #d5c7c2; font-size: 13px; line-height: 1.6; }
@@ -1647,7 +1552,6 @@ button:disabled { cursor: not-allowed; opacity: .46; }
   .hud-nav-command:first-of-type span { display: inline; }
   .hud-player-controls { gap: 4px; }
   .hud-player-controls .commander-chip { display: none; }
-  .interface-toggle { min-height: 34px; }
   .campaign-home-copy h1,.guide-hero h1 { font-size: 45px; }
   .campaign-home-copy > p,.guide-hero > p { font-size: 14px; }
   .home-roster-summary > div { grid-template-columns: 1fr; }
@@ -1661,4 +1565,305 @@ button:disabled { cursor: not-allowed; opacity: .46; }
 }
 @media (max-width: 360px) {
   .cockpit-brand > span { display: none; }
+}
+
+/* Contextual cockpit ------------------------------------------------------
+   The ancestry map is the permanent game board. Secondary systems live in
+   one drawer, while this directive is the single source of "what next". */
+.game-cockpit {
+  grid-template-columns: 260px minmax(0,1fr);
+  grid-template-rows: 76px 74px minmax(0,1fr) 36px;
+}
+.hud-topbar::after { left: 260px; right: 0; }
+
+.next-directive {
+  grid-column: 1/-1;
+  grid-row: 2;
+  z-index: 18;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(250px,1fr) minmax(230px,.7fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 18px;
+  border-bottom: 1px solid rgba(174,241,109,.32);
+  background: linear-gradient(90deg,rgba(11,35,22,.98),rgba(4,19,14,.97) 64%,rgba(8,27,19,.98));
+  box-shadow: inset 0 -1px rgba(208,255,175,.04),0 12px 38px rgba(0,0,0,.32);
+}
+.next-directive::before {
+  content: "";
+  position: absolute;
+  left: 56px;
+  right: 32%;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg,var(--acid),transparent);
+  box-shadow: 0 0 14px var(--acid);
+}
+.directive-signal {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border: 1px solid var(--acid);
+  border-radius: 50%;
+  color: var(--acid);
+  box-shadow: 0 0 19px rgba(174,241,109,.24),inset 0 0 13px rgba(174,241,109,.08);
+}
+.directive-signal i { position: absolute; inset: 5px; border: 1px dashed rgba(174,241,109,.38); border-radius: 50%; animation: orbit-spin 7s linear infinite; }
+.directive-signal b { font-size: 22px; line-height: 1; }
+.directive-copy { min-width: 0; display: flex; flex-direction: column; }
+.directive-copy small { color: #b8ff78; font-size: 10px; font-weight: 900; letter-spacing: .16em; text-shadow: 0 0 11px rgba(174,241,109,.6); }
+.directive-copy strong { margin-top: 4px; overflow: hidden; color: #f5ffea; font-size: 17px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 0 15px rgba(199,255,149,.22); }
+.next-directive > p { margin: 0; color: #d2ded6; font-size: 11px; line-height: 1.4; }
+.next-directive > button {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #b9f87b;
+  padding: 0 13px;
+  background: linear-gradient(90deg,#85c95d,#baf37b);
+  color: #071108;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .06em;
+  white-space: nowrap;
+  cursor: pointer;
+  clip-path: polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));
+}
+.next-directive > button span { font-size: 18px; }
+.next-directive.directive-urgent { border-bottom-color: rgba(255,126,107,.48); background: linear-gradient(90deg,rgba(53,22,16,.98),rgba(15,20,14,.97) 64%,rgba(35,20,13,.98)); }
+.next-directive.directive-urgent::before { background: linear-gradient(90deg,var(--danger),transparent); box-shadow: 0 0 14px var(--danger); }
+.directive-urgent .directive-signal { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 19px rgba(255,126,107,.26),inset 0 0 13px rgba(255,126,107,.08); }
+.directive-urgent .directive-signal i { border-color: rgba(255,126,107,.4); }
+.directive-urgent .directive-copy small { color: #ff9f91; text-shadow: 0 0 11px rgba(255,126,107,.55); }
+.next-directive.directive-waiting { border-bottom-color: rgba(151,195,169,.2); }
+.directive-waiting .directive-signal { border-color: #668778; color: #a9c5b6; box-shadow: none; }
+.directive-waiting .directive-copy small { color: #9eb8aa; text-shadow: none; }
+
+.ecosystem-rail { grid-column: 1; grid-row: 3; }
+.ecosystem-menu-command {
+  width: 100%;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  margin-top: auto;
+  border: 1px solid rgba(167,225,184,.2);
+  padding: 8px 10px;
+  background: rgba(255,255,255,.025);
+  color: #e0ebe4;
+  text-align: left;
+  cursor: pointer;
+}
+.ecosystem-menu-command span { font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+.ecosystem-menu-command small { grid-column: 1; margin-top: 3px; color: #a9bbb0; font-size: 9px; }
+.ecosystem-menu-command b { grid-column: 2; grid-row: 1/3; align-self: center; color: var(--acid); font-size: 22px; }
+.ecosystem-menu-command:hover,.ecosystem-menu-command:focus-visible { border-color: var(--acid); outline: 0; }
+
+.ancestry-theater {
+  grid-column: 2;
+  grid-row: 3;
+  grid-template-rows: 58px minmax(0,1fr);
+  gap: 8px;
+}
+.context-dock {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(120px,1fr));
+  gap: 6px;
+}
+.context-dock > button {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr);
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(150,215,170,.16);
+  padding: 6px 9px;
+  overflow: hidden;
+  background: linear-gradient(120deg,rgba(12,31,23,.92),rgba(5,15,12,.9));
+  color: #dce8e0;
+  text-align: left;
+  cursor: pointer;
+}
+.context-dock > button:hover,.context-dock > button:focus-visible { border-color: var(--acid); background: rgba(174,241,109,.07); outline: 0; }
+.context-dock > button:disabled { opacity: .45; cursor: not-allowed; }
+.context-dock > button > i { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid #466255; border-radius: 50%; color: #bed0c4; font-size: 14px; font-style: normal; }
+.context-dock > button > i.live { border-color: var(--acid); color: var(--acid); box-shadow: 0 0 10px rgba(174,241,109,.18); }
+.context-dock > button > i.urgent,.context-dock > button > i.hazard { border-color: var(--danger); color: #ff9b8d; }
+.context-dock > button > span { min-width: 0; display: flex; flex-direction: column; }
+.context-dock b { font-size: 10px; letter-spacing: .1em; }
+.context-dock small { margin-top: 3px; overflow: hidden; color: #9daea4; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.hud-event-ticker { grid-row: 4; }
+
+.context-drawer-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0,5,3,.62);
+  backdrop-filter: blur(3px);
+  animation: context-fade-in .16s ease-out;
+}
+.context-drawer {
+  width: min(510px,calc(100vw - 28px));
+  height: 100svh;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0,1fr);
+  border-left: 1px solid rgba(174,241,109,.36);
+  background: linear-gradient(155deg,#071710,#020906 72%);
+  box-shadow: -26px 0 80px rgba(0,0,0,.62),inset 1px 0 rgba(210,255,218,.03);
+  animation: context-slide-in .22s ease-out;
+}
+.context-drawer.wide { width: min(1060px,calc(100vw - 28px)); }
+.context-drawer-header {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid rgba(161,225,181,.17);
+  padding: 13px 16px;
+  background: linear-gradient(90deg,rgba(174,241,109,.08),transparent 62%);
+}
+.context-drawer-header > div { min-width: 0; }
+.context-drawer-header small { color: var(--acid); font-size: 10px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+.context-drawer-header h2 { margin: 4px 0 0; overflow: hidden; color: #f2f8f4; font-size: 21px; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
+.context-drawer-header > button { min-height: 38px; flex: none; border: 1px solid rgba(190,225,201,.22); padding: 0 10px; background: rgba(255,255,255,.025); color: #d3dfd7; font-size: 10px; font-weight: 800; cursor: pointer; }
+.context-drawer-header > button span { margin-left: 5px; color: var(--acid); font-size: 16px; }
+.context-drawer-header > button:hover,.context-drawer-header > button:focus-visible { border-color: var(--acid); outline: 0; }
+.context-drawer-body { min-width: 0; min-height: 0; overflow: auto; padding: 12px; scrollbar-width: thin; scrollbar-color: #315741 rgba(0,0,0,.15); }
+@keyframes context-fade-in { from { opacity: 0; } }
+@keyframes context-slide-in { from { transform: translateX(30px); opacity: .6; } }
+
+.context-drawer .phase-console,.context-drawer .specimen-codex { width: 100%; border-color: rgba(174,241,109,.22); }
+.context-drawer .phase-console { padding: 14px; }
+.context-drawer .phase-console-header h2 { font-size: 18px; }
+.context-drawer .phase-clock span { font-size: 34px; }
+.context-drawer .phase-next-command > strong { font-size: 14px; }
+.context-drawer .phase-next-command > p,.context-drawer .phase-instruction { font-size: 11px; }
+.context-drawer .ecosystem-readiness li,.context-drawer .readiness-heading,.context-drawer .energy-bank small { font-size: 10px; }
+.context-drawer .sealed-action-list article b,.context-drawer .sealed-action-list article small { font-size: 10px; }
+
+.hazard-report { display: grid; gap: 14px; }
+.hazard-report-intro { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 13px; border: 1px solid rgba(255,126,107,.3); padding: 14px; background: rgba(255,126,107,.07); }
+.hazard-report-intro > span { width: 52px; height: 52px; display: grid; place-items: center; border: 1px solid var(--danger); color: var(--danger); font-size: 26px; }
+.hazard-report-intro p { margin: 0; color: #e1d6d2; font-size: 13px; line-height: 1.55; }
+.hazard-report dl { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 0; }
+.hazard-report dl > div { border: 1px solid rgba(166,215,181,.13); padding: 11px; background: rgba(255,255,255,.02); }
+.hazard-report dt { color: #a9bbb0; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.hazard-report dd { margin: 5px 0 0; color: #f0f6f2; font-size: 15px; font-weight: 800; }
+.hazard-report.exposed dl > div:last-child dd,.hazard-report.strained dl > div:last-child dd { color: #ff9b8d; }
+.hazard-report.adapted dl > div:last-child dd { color: var(--acid); }
+.hazard-report-meter { height: 7px; overflow: hidden; background: rgba(255,255,255,.07); }
+.hazard-report-meter i { height: 100%; display: block; background: linear-gradient(90deg,#d95638,#f4b861); box-shadow: 0 0 10px currentColor; }
+.hazard-report.adapted .hazard-report-meter i { background: var(--acid); }
+.hazard-report-help { margin: 0; color: #b7c5bc; font-size: 11px; line-height: 1.5; }
+
+.ecosystem-context-panel { display: grid; gap: 15px; }
+.ecosystem-context-panel .species-capacity { margin: 0; padding: 12px; border: 1px solid rgba(157,216,176,.16); background: rgba(255,255,255,.02); }
+.ecosystem-context-panel .rival-radar { margin: 0; padding: 12px; border: 1px solid rgba(194,143,255,.18); }
+.ecosystem-context-panel .rival-radar > button { min-height: 58px; }
+.ecosystem-context-panel .rival-radar button > i { width: 40px; height: 40px; }
+.ecosystem-context-panel .concede-zone { margin-top: 12px; border-top: 1px solid rgba(255,126,107,.2); padding-top: 18px; }
+
+.context-drawer .mutation-deck {
+  width: 100%;
+  min-height: calc(100svh - 98px);
+  grid-column: auto;
+  grid-row: auto;
+  position: relative;
+  border: 1px solid rgba(174,241,109,.2);
+  box-shadow: none;
+}
+.context-drawer .mutation-deck-header { min-height: 52px; padding: 9px 12px; }
+.context-drawer .mutation-deck-header h2 { display: block; margin: 4px 0 0; font-size: 15px; }
+.context-drawer .mutation-console-form { grid-template-columns: 165px 155px minmax(260px,1fr) minmax(230px,.82fr) 155px; overflow: visible; }
+.context-drawer .mutation-console-form fieldset { padding-top: 27px; overflow: visible; }
+.context-drawer .action-protocols button { min-height: 58px; }
+.context-drawer .deck-gene-scroll { grid-template-columns: repeat(2,minmax(108px,1fr)); }
+.context-drawer .mutation-deck .gene-card { min-height: 84px; }
+.context-drawer .mutation-brief textarea { min-height: 130px; }
+.context-drawer .seal-command-zone { min-height: 260px; }
+.context-drawer .deck-lockdown { min-height: 260px; }
+
+@media (max-width: 1180px) {
+  .game-cockpit { grid-template-columns: 220px minmax(0,1fr); grid-template-rows: 76px 78px minmax(0,1fr) 36px; }
+  .hud-topbar::after { left: 220px; right: 0; }
+  .next-directive { grid-template-columns: 38px minmax(220px,1fr) minmax(190px,.65fr) auto; gap: 10px; padding-inline: 12px; }
+  .directive-copy strong { font-size: 15px; }
+  .next-directive > button { padding-inline: 9px; font-size: 9px; }
+  .context-dock { grid-template-columns: repeat(4,minmax(96px,1fr)); }
+  .context-dock > button { grid-template-columns: 28px minmax(0,1fr); padding-inline: 6px; }
+  .context-dock > button > i { width: 27px; height: 27px; }
+}
+
+@media (max-width: 860px) {
+  .gameplay-frame { height: 100svh; overflow: hidden; }
+  .game-cockpit { width: 100%; height: 100svh; min-height: 0; grid-template-columns: 1fr; grid-template-rows: 64px auto auto minmax(430px,1fr) 34px; overflow: hidden; }
+  .hud-topbar { grid-column: 1; grid-row: 1; position: relative; }
+  .next-directive { grid-column: 1; grid-row: 2; grid-template-columns: 34px minmax(0,1fr) auto; min-height: 76px; }
+  .directive-signal { width: 32px; height: 32px; }
+  .directive-copy small { font-size: 9px; }
+  .directive-copy strong { font-size: 14px; white-space: normal; }
+  .next-directive > p { grid-column: 2/4; grid-row: 2; font-size: 10px; }
+  .next-directive > button { grid-column: 3; grid-row: 1; min-height: 38px; }
+  .ecosystem-rail { grid-column: 1; grid-row: 3; display: block; max-height: 190px; overflow-x: auto; overflow-y: hidden; padding: 8px; border-bottom: 1px solid var(--hud-edge); }
+  .ecosystem-rail > header { display: none; }
+  .species-slots { display: flex; gap: 7px; padding: 0; }
+  .roster-species { min-width: 220px; }
+  .empty-species-slot { min-width: 175px; }
+  .ecosystem-menu-command { min-width: 190px; min-height: 76px; margin: 0; align-self: stretch; }
+  .ancestry-theater { grid-column: 1; grid-row: 4; min-height: 0; grid-template-rows: 56px minmax(0,1fr); padding: 7px; }
+  .phylogeny-map { min-height: 0; }
+  .context-dock { grid-template-columns: repeat(4,minmax(92px,1fr)); overflow-x: auto; }
+  .context-dock > button { min-width: 102px; }
+  .hud-event-ticker { grid-column: 1; grid-row: 5; }
+  .context-drawer-backdrop { align-items: flex-end; }
+  .context-drawer,.context-drawer.wide { width: 100vw; height: min(86svh,760px); border-top: 1px solid rgba(174,241,109,.36); border-left: 0; animation-name: context-sheet-in; }
+  .context-drawer-header { min-height: 62px; }
+  .context-drawer-body { padding: 9px; }
+  .context-drawer .mutation-deck { min-height: 680px; }
+  .context-drawer .mutation-console-form { grid-template-columns: 1fr 1fr; }
+  .context-drawer .mutation-console-form fieldset,.context-drawer .seal-command-zone,.context-drawer .conserve-protocol { min-height: 200px; border-bottom: 1px solid rgba(140,199,158,.1); }
+  .context-drawer .gene-bank,.context-drawer .conserve-protocol { grid-column: 1/-1; }
+  .context-drawer .deck-lockdown { grid-template-columns: 70px 1fr; }
+  .context-drawer .lockdown-actions { grid-column: 1/-1; }
+  @keyframes context-sheet-in { from { transform: translateY(35px); opacity: .6; } }
+}
+
+@media (max-width: 600px) {
+  .game-cockpit { grid-template-rows: 60px auto 98px minmax(390px,1fr) 32px; }
+  .next-directive { grid-template-columns: 30px minmax(0,1fr); gap: 7px 9px; padding: 8px 10px; }
+  .directive-signal { width: 29px; height: 29px; }
+  .directive-copy strong { font-size: 13px; }
+  .next-directive > p { grid-column: 2; grid-row: 2; }
+  .next-directive > button { grid-column: 1/-1; grid-row: 3; min-height: 34px; justify-content: center; }
+  .next-directive > button span { position: absolute; right: 12px; }
+  .ecosystem-rail { max-height: 98px; }
+  .roster-species { min-width: 205px; }
+  .roster-select { min-height: 76px; }
+  .context-dock { grid-template-columns: repeat(4,94px); }
+  .context-dock > button { min-width: 94px; grid-template-columns: 1fr; place-items: center; padding: 4px; text-align: center; }
+  .context-dock > button > i { display: none; }
+  .context-dock small { max-width: 88px; }
+  .phylogeny-toolbar { padding-inline: 9px; }
+  .map-legend { display: none; }
+  .context-drawer-header h2 { font-size: 18px; }
+  .context-drawer-header > button { min-height: 36px; padding-inline: 8px; }
+  .context-drawer .mutation-console-form { display: block; }
+  .context-drawer .mutation-console-form fieldset,.context-drawer .seal-command-zone,.context-drawer .conserve-protocol { min-height: 190px; }
+  .context-drawer .mutation-deck { min-height: 980px; }
+  .context-drawer .deck-gene-scroll { grid-template-columns: repeat(2,minmax(115px,1fr)); }
+  .context-drawer .deck-lockdown { display: grid; grid-template-columns: 60px 1fr; min-height: 280px; padding: 15px; }
+  .hazard-report dl { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .context-drawer-backdrop,.context-drawer,.directive-signal i { animation: none; }
 }

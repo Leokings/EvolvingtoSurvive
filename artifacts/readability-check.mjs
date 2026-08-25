@@ -118,18 +118,25 @@ const scenarios = [];
 }
 
 {
-  const {page, errors} = await open("/?demo=1&phase=plan&mode=advanced", {width: 1440, height: 1000}, ".game-cockpit");
-  const selectors = [
+  const {page, errors} = await open("/?demo=1&phase=plan", {width: 1440, height: 1000}, ".game-cockpit");
+  const boardSelectors = [
     [".roster-copy small", 10],
-    [".hazard-alert p", 10],
     [".phylogeny-label strong", 10],
-    [".phase-instruction", 11],
-    [".codex-title p", 10],
-    [".action-protocols button small", 9],
-    [".mutation-brief textarea", 11],
+    [".directive-copy strong", 17],
+    [".next-directive > p", 11],
+    [".context-dock small", 9],
     [".hud-event-ticker", 9],
   ];
-  const measurements = await Promise.all(selectors.map(([selector]) => measure(page, selector)));
+  const boardMeasurements = await Promise.all(boardSelectors.map(([selector]) => measure(page, selector)));
+  await page.locator(".next-directive").getByRole("button", {name: /Open evolution lab/i}).click();
+  await page.getByRole("dialog", {name: "Evolution lab"}).waitFor({state: "visible"});
+  const labSelectors = [
+    [".action-protocols button small", 9],
+    [".mutation-brief textarea", 11],
+  ];
+  const labMeasurements = await Promise.all(labSelectors.map(([selector]) => measure(page, selector)));
+  const selectors = [...boardSelectors, ...labSelectors];
+  const measurements = [...boardMeasurements, ...labMeasurements];
   measurements.forEach((entry, index) => {
     assert.ok(entry.size >= selectors[index][1], `${entry.selector} is only ${entry.size}px`);
     assert.ok(contrast(rgb(entry.color)) >= 4.5, `${entry.selector} contrast is below 4.5:1`);
@@ -141,12 +148,15 @@ const scenarios = [];
 }
 
 {
-  const {page, errors} = await open("/?demo=1&phase=plan&mode=guided", {width: 1440, height: 1000}, ".game-cockpit");
+  const {page, errors} = await open("/?demo=1&phase=plan", {width: 1440, height: 1000}, ".game-cockpit");
+  await page.locator(".context-dock > button", {hasText: "TURN"}).click();
+  await page.getByRole("dialog", {name: "Turn controls"}).waitFor({state: "visible"});
   const selectors = [
     [".turn-loop li", 9],
-    [".phase-next-command > strong", 12],
-    [".phase-next-command > p", 10],
-    [".interface-toggle", 9],
+    [".phase-next-command > strong", 14],
+    [".phase-next-command > p", 11],
+    [".phase-instruction", 11],
+    [".ecosystem-readiness li", 10],
   ];
   const measurements = await Promise.all(selectors.map(([selector]) => measure(page, selector)));
   measurements.forEach((entry, index) => {
@@ -154,8 +164,8 @@ const scenarios = [];
     assert.ok(contrast(rgb(entry.color)) >= 4.5, `${entry.selector} contrast is below 4.5:1`);
   });
   const underNine = await auditDirectText(page, ".game-cockpit");
-  assert.equal(underNine.length, 0, `guided cockpit still has sub-9px direct text: ${JSON.stringify(underNine)}`);
-  scenarios.push({name: "guided evolution cockpit", measurements, underNine, errors});
+  assert.equal(underNine.length, 0, `turn drawer still has sub-9px direct text: ${JSON.stringify(underNine)}`);
+  scenarios.push({name: "contextual turn drawer", measurements, underNine, errors});
   await page.close();
 }
 

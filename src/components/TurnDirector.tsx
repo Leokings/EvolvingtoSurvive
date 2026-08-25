@@ -33,7 +33,6 @@ export default function TurnDirector({
   state,
   secrets,
   busy,
-  guided,
   pendingPortrait,
   nextEvolvableSpecies,
   lastSyncedAt,
@@ -51,7 +50,6 @@ export default function TurnDirector({
   state: PhaseState;
   secrets: Record<number, RevealSecret>;
   busy: string;
-  guided: boolean;
   pendingPortrait: Species | null;
   nextEvolvableSpecies: Species | null;
   lastSyncedAt: number;
@@ -65,7 +63,6 @@ export default function TurnDirector({
   onRefresh: () => void;
 }) {
   const [showRecovery, setShowRecovery] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   const [backup, setBackup] = useState("");
   const actionCount = state.yourActions.length;
   const portraitRequired = Boolean(
@@ -112,7 +109,7 @@ export default function TurnDirector({
     commandClass = "portrait-command-primary";
     commandBusy = busy === `portrait-${pendingPortrait.speciesId}`;
     commandAction = () => void onGeneratePortrait(pendingPortrait.speciesId);
-  } else if (guided && state.canLock && actionCount === 0 && nextEvolvableSpecies) {
+  } else if (state.canLock && actionCount === 0 && nextEvolvableSpecies) {
     commandTitle = `Choose ${nextEvolvableSpecies.name}'s adaptation`;
     commandDetail = "Open the evolution lab, choose two genes, explain the survival trait, and seal it.";
     commandLabel = `EVOLVE ${nextEvolvableSpecies.name}`;
@@ -142,7 +139,6 @@ export default function TurnDirector({
       ? () => onReveal(firstUnrevealed.slot)
       : () => {
           setShowRecovery(true);
-          setShowDetails(true);
         };
   }
 
@@ -151,8 +147,6 @@ export default function TurnDirector({
     : planet.phase === "reveal"
       ? state.unrevealedActions.length ? 2 : 3
       : state.locked ? 2 : actionCount ? 1 : 0;
-  const detailsVisible = !guided || showDetails;
-
   async function restore() {
     if (!backup.trim()) return;
     const restored = await onRestoreBackup(backup);
@@ -200,11 +194,9 @@ export default function TurnDirector({
         </div>
       )}
 
-      {guided && state.canLock && actionCount === 0 && nextEvolvableSpecies && !portraitRequired ? <button className="skip-turn-command" type="button" disabled={Boolean(busy)} onClick={onLock}>Skip evolution and lock plan</button> : null}
+      {state.canLock && actionCount === 0 && nextEvolvableSpecies && !portraitRequired ? <button className="skip-turn-command" type="button" disabled={Boolean(busy)} onClick={onLock}>Skip evolution and lock plan</button> : null}
 
-      {guided ? <button className="phase-details-toggle" type="button" aria-expanded={detailsVisible} onClick={() => setShowDetails((shown) => !shown)}>{detailsVisible ? "HIDE TURN DETAILS" : "SHOW TURN DETAILS"}<span>{detailsVisible ? "−" : "+"}</span></button> : null}
-
-      <div className={`phase-detail-stack ${detailsVisible ? "" : "is-hidden"}`}>
+      <div className="phase-detail-stack">
         <div className="utility-commands">
           <button type="button" onClick={() => setShowRecovery((shown) => !shown)}>Restore reveal key</button>
           <button type="button" disabled={busy === "refresh"} onClick={onRefresh}>{busy === "refresh" ? "Syncing…" : "Sync chain"}</button>

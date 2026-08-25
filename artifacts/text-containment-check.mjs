@@ -90,14 +90,20 @@ async function prepareScenario(page, scenario) {
     await page.getByRole("dialog", {name: /Configure a hostile biosphere/i}).waitFor({state: "visible"});
   }
   if (scenario.action === "recovery") {
-    await page.getByRole("button", {name: /Restore key for action/i}).click();
+    await page.locator(".context-dock > button", {hasText: "TURN"}).click();
+    await page.getByRole("dialog", {name: "Turn controls"}).waitFor({state: "visible"});
+    await page.locator(".phase-next-command").getByRole("button", {name: /Restore key for action/i}).click();
     await page.locator(".recovery-console").waitFor({state: "visible"});
   }
   if (scenario.action === "concede") {
+    await page.locator(".context-dock > button", {hasText: "ECOSYSTEM"}).click();
+    await page.getByRole("dialog", {name: "Ecosystem controls"}).waitFor({state: "visible"});
     await page.getByRole("button", {name: /Retire selected species/i}).click();
     await page.locator(".concede-zone [role=alert]").waitFor({state: "visible"});
   }
   if (scenario.action === "end-run") {
+    await page.locator(".context-dock > button", {hasText: "ECOSYSTEM"}).click();
+    await page.getByRole("dialog", {name: "Ecosystem controls"}).waitFor({state: "visible"});
     await page.getByRole("button", {name: /End my run/i}).click();
     await page.locator(".end-run-dialog").waitFor({state: "visible"});
   }

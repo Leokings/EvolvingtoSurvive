@@ -1,4 +1,4 @@
-import {useMemo} from "react";
+import {useEffect, useMemo, useRef} from "react";
 
 import {geneDefinition, label} from "../catalog";
 import type {Species} from "../game-model";
@@ -36,6 +36,7 @@ export default function EvolutionTree({
   onEvolve: (speciesId: string) => void;
 }) {
   const viewer = viewerAddress.toLowerCase();
+  const viewportRef = useRef<HTMLDivElement>(null);
   const graph = useMemo(() => {
     const eraGap = 142;
     const laneGap = 132;
@@ -68,6 +69,20 @@ export default function EvolutionTree({
       .map((entry) => [entry.lineage.nodeId, entry]),
   ), [graph.positioned]);
 
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    const target = graph.positioned.find((entry) => isSelected(selection, entry));
+    if (!viewport || !target) return;
+    const frame = globalThis.requestAnimationFrame(() => {
+      viewport.scrollTo({
+        left: Math.max(0, target.x - viewport.clientWidth * .52),
+        top: Math.max(0, target.y - viewport.clientHeight * .5),
+        behavior: "auto",
+      });
+    });
+    return () => globalThis.cancelAnimationFrame(frame);
+  }, [graph.positioned, selection.nodeId, selection.speciesId]);
+
   return (
     <section className="phylogeny-map" aria-labelledby="lineage-tree-title">
       <header className="phylogeny-toolbar">
@@ -82,7 +97,7 @@ export default function EvolutionTree({
         </div>
       </header>
 
-      <div className="phylogeny-viewport">
+      <div className="phylogeny-viewport" ref={viewportRef}>
         <div className="phylogeny-canvas" style={{width: graph.width, height: graph.height}}>
           <div className="era-axis" aria-hidden="true">
             {Array.from({length: eraLimit + 1}, (_, era) => (

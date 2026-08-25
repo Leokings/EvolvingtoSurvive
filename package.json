@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:visual": "node artifacts/visual-check.mjs",
+    "test:visual": "node artifacts/contextual-ui-check.mjs",
     "test:readability": "node artifacts/readability-check.mjs",
     "test:containment": "node artifacts/text-containment-check.mjs",
     "test:contract": ".venv\\Scripts\\pytest.exe tests/direct -q",
