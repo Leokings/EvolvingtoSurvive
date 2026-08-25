@@ -36,7 +36,6 @@ const scenarios = [
     viewport,
   })),
   {name: "reveal/recovery", path: "/?demo=1&phase=reveal&mode=guided", ready: ".game-cockpit", viewport: viewports.desktop1440, action: "recovery"},
-  {name: "plan/concede", path: "/?demo=1&phase=plan&mode=advanced", ready: ".game-cockpit", viewport: viewports.desktop1440, action: "concede"},
   {name: "plan/era-recap-desktop", path: "/?demo=1&phase=plan&mode=guided&recap=1", ready: ".era-recap", viewport: viewports.desktop1440},
   {name: "plan/era-recap-phone", path: "/?demo=1&phase=plan&mode=guided&recap=1", ready: ".era-recap", viewport: viewports.phone320},
   ...[viewports.phone320, viewports.tablet768, viewports.desktop1440].flatMap((viewport, index) => {
@@ -46,8 +45,8 @@ const scenarios = [
       {name: `how-to-play/${viewportName}`, path: "/how-to-play?demo=1&phase=plan", ready: ".how-to-play", viewport},
     ];
   }),
-  {name: "end-run/phone320", path: "/?demo=1&phase=plan&mode=guided", ready: ".game-cockpit", viewport: viewports.phone320, action: "end-run"},
-  {name: "end-run/desktop1440", path: "/?demo=1&phase=plan&mode=guided", ready: ".game-cockpit", viewport: viewports.desktop1440, action: "end-run"},
+  {name: "simulation-exit/phone320", path: "/?demo=1&phase=plan", ready: ".game-cockpit", viewport: viewports.phone320, action: "simulation-exit"},
+  {name: "simulation-exit/desktop1440", path: "/?demo=1&phase=plan", ready: ".game-cockpit", viewport: viewports.desktop1440, action: "simulation-exit"},
   ...[viewports.phone320, viewports.tablet768, viewports.desktop1440].flatMap((viewport, index) => [
     {name: `waiting/${["phone320", "tablet768", "desktop1440"][index]}`, path: "/?demo=1&view=lobby", ready: ".command-lobby", viewport, action: "waiting-fixture"},
     {name: `world-card/${["phone320", "tablet768", "desktop1440"][index]}`, path: "/?demo=1&view=lobby", ready: ".command-lobby", viewport, action: "world-fixture"},
@@ -95,17 +94,10 @@ async function prepareScenario(page, scenario) {
     await page.locator(".phase-next-command").getByRole("button", {name: /Restore key for action/i}).click();
     await page.locator(".recovery-console").waitFor({state: "visible"});
   }
-  if (scenario.action === "concede") {
+  if (scenario.action === "simulation-exit") {
     await page.locator(".context-dock > button", {hasText: "ECOSYSTEM"}).click();
     await page.getByRole("dialog", {name: "Ecosystem controls"}).waitFor({state: "visible"});
-    await page.getByRole("button", {name: /Retire selected species/i}).click();
-    await page.locator(".concede-zone [role=alert]").waitFor({state: "visible"});
-  }
-  if (scenario.action === "end-run") {
-    await page.locator(".context-dock > button", {hasText: "ECOSYSTEM"}).click();
-    await page.getByRole("dialog", {name: "Ecosystem controls"}).waitFor({state: "visible"});
-    await page.getByRole("button", {name: /End my run/i}).click();
-    await page.locator(".end-run-dialog").waitFor({state: "visible"});
+    await page.locator(".exit-simulation-command").waitFor({state: "visible"});
   }
   if (scenario.action?.endsWith("-fixture")) {
     await installFixture(page, scenario.action);

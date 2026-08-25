@@ -177,6 +177,16 @@ export default function App({
     globalThis.scrollTo({top: 0, behavior: "smooth"});
   }, []);
 
+  const exitSimulation = useCallback(() => {
+    const url = new URL(globalThis.location.href);
+    url.pathname = "/";
+    url.search = "";
+    url.searchParams.set("demo", "1");
+    url.searchParams.set("view", "lobby");
+    url.hash = "";
+    globalThis.location.assign(`${url.pathname}${url.search}`);
+  }, []);
+
   useEffect(() => {
     const followBrowserHistory = () => setAppView(readAppView(globalThis.location.search, globalThis.location.pathname));
     globalThis.addEventListener("popstate", followBrowserHistory);
@@ -617,6 +627,7 @@ export default function App({
           onGeneratePortrait={generatePortrait}
           onRefresh={refresh}
           onHome={() => navigateTo("home")}
+          onExitSimulation={exitSimulation}
           onHowToPlay={() => navigateTo("guide")}
         />
       ) : visiblePlanet?.status === "waiting" ? (

@@ -64,6 +64,7 @@ export default function EvolutionArena({
   onGeneratePortrait,
   onRefresh,
   onHome,
+  onExitSimulation,
   onHowToPlay,
 }: {
   planet: PlanetState;
@@ -83,6 +84,7 @@ export default function EvolutionArena({
   onGeneratePortrait: (speciesId: string) => Promise<void>;
   onRefresh: () => Promise<void>;
   onHome: () => void;
+  onExitSimulation: () => void;
   onHowToPlay: () => void;
 }) {
   const viewer = address.toLowerCase();
@@ -335,7 +337,7 @@ export default function EvolutionArena({
         </div>
         {demo ? <nav className="hud-scenario-switcher" aria-label="Preview phase"><a className={planet.phase === "commit" && !phaseState.locked && phaseState.yourActions.length === 0 ? "active" : ""} href="?demo=1&phase=plan">PLAN</a><a className={planet.phase === "commit" && !phaseState.locked && phaseState.yourActions.length > 0 ? "active" : ""} href="?demo=1&phase=sealed">SEALED</a><a className={phaseState.locked && planet.phase === "commit" && !phaseState.expired ? "active" : ""} href="?demo=1&phase=locked">LOCK</a><a className={planet.phase === "reveal" && !phaseState.expired ? "active" : ""} href="?demo=1&phase=reveal">REVEAL</a><a className={phaseState.expired ? "active" : ""} href="?demo=1&phase=expired">EXPIRED</a></nav> : null}
         <div className="hud-player-controls">
-          <button className="hud-nav-command" type="button" onClick={onHome} aria-label="Go to campaign home"><i>⌂</i><span>HOME</span></button>
+          <button className={`hud-nav-command ${demo ? "simulation-exit-nav" : ""}`} type="button" onClick={demo ? onExitSimulation : onHome} aria-label={demo ? "Exit simulation and return to world selection" : "Go to campaign home"}><i>{demo ? "↙" : "⌂"}</i><span>{demo ? "EXIT SIM" : "HOME"}</span></button>
           <button className="hud-nav-command" type="button" onClick={onHowToPlay} aria-label="Open How to Play"><i>?</i><span>HOW TO PLAY</span></button>
           <div className="commander-chip"><span><i />STUDIONET</span><b>{shortAddress(address)}</b></div>
         </div>
@@ -369,7 +371,7 @@ export default function EvolutionArena({
           })}
           {Array.from({length: Math.max(0, planet.maxSpeciesPerWallet - livingOwned.length)}, (_, index) => <div className="empty-species-slot" key={index}><span>+</span><div><b>OPEN SPECIES SLOT</b><small>Create with fork or DNA fusion</small></div></div>)}
         </div>
-        <button className="ecosystem-menu-command" type="button" onClick={() => setActivePanel("ecosystem")}><span>ECOSYSTEM MENU</span><small>Rivals · capacity · retire species</small><b>›</b></button>
+        <button className="ecosystem-menu-command" type="button" onClick={() => setActivePanel("ecosystem")}><span>ECOSYSTEM MENU</span><small>{demo ? "Rivals · capacity · exit simulation" : "Rivals · capacity · retire species"}</small><b>›</b></button>
       </aside>
 
       <section className="ancestry-theater">
@@ -415,10 +417,17 @@ export default function EvolutionArena({
               <header><span>Rival biosignatures</span><b>{rivalSpecies.length}</b></header>
               {rivalSpecies.map((species) => <button type="button" key={species.speciesId} className={selection.speciesId === species.speciesId ? "selected" : ""} onClick={() => selectSpecies(species)}><i>{species.portraitUrl ? <img src={species.portraitUrl} alt="" /> : species.name.slice(0, 1)}</i><span><b>{species.name}</b><small>{species.population}m · {species.legacy} legacy</small></span><em>INSPECT</em></button>)}
             </section>
-            <div className="concede-zone">
-              <button className="end-run-command" type="button" disabled={!livingOwned.length || Boolean(busy)} onClick={() => setEndRunOpen(true)}><strong>END MY RUN</strong><small>Retire all {livingOwned.length} living species</small></button>
-              {!confirmConcede ? <button className="retire-species-command" type="button" disabled={!primary?.alive || Boolean(busy)} onClick={() => setConfirmConcede(primary?.speciesId ?? "")}>Retire selected species only</button> : <div role="alert"><p>Retire {planet.species.find((species) => species.speciesId === confirmConcede)?.name}? Your other species remain in play.</p><span><button type="button" onClick={() => setConfirmConcede("")}>Cancel</button><button type="button" disabled={Boolean(busy)} onClick={() => void retireSelectedSpecies()}>Confirm retirement</button></span></div>}
-            </div>
+            {demo ? (
+              <div className="simulation-exit-zone">
+                <p><strong>TRAINING SIMULATION</strong><span>This preview is not onchain. You can leave immediately—no wallet or retirement transaction is needed.</span></p>
+                <button className="exit-simulation-command" type="button" onClick={onExitSimulation}><span><strong>EXIT SIMULATION</strong><small>Return to world selection</small></span><b>→</b></button>
+              </div>
+            ) : (
+              <div className="concede-zone">
+                <button className="end-run-command" type="button" disabled={!livingOwned.length || Boolean(busy)} onClick={() => setEndRunOpen(true)}><strong>END MY RUN</strong><small>Retire all {livingOwned.length} living species</small></button>
+                {!confirmConcede ? <button className="retire-species-command" type="button" disabled={!primary?.alive || Boolean(busy)} onClick={() => setConfirmConcede(primary?.speciesId ?? "")}>Retire selected species only</button> : <div role="alert"><p>Retire {planet.species.find((species) => species.speciesId === confirmConcede)?.name}? Your other species remain in play.</p><span><button type="button" onClick={() => setConfirmConcede("")}>Cancel</button><button type="button" disabled={Boolean(busy)} onClick={() => void retireSelectedSpecies()}>Confirm retirement</button></span></div>}
+              </div>
+            )}
           </section>
         </ContextDrawer>
       ) : null}
@@ -472,7 +481,7 @@ export default function EvolutionArena({
           </section>
         </ContextDrawer>
       ) : null}
-      {endRunOpen ? (
+      {endRunOpen && !demo ? (
         <div className="modal-backdrop end-run-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !busy && setEndRunOpen(false)}>
           <section className="end-run-dialog" role="dialog" aria-modal="true" aria-labelledby="end-run-title" aria-describedby="end-run-description">
             <header><span>!</span><div><small>IRREVERSIBLE ONCHAIN EXIT</small><h2 id="end-run-title">End your run on {planet.name}?</h2></div></header>

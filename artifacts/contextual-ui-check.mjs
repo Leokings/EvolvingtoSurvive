@@ -30,6 +30,7 @@ const results = [];
   assert.equal(await page.locator(".interface-toggle, .intel-rail").count(), 0);
   assert.equal(await page.locator(".context-dock > button").count(), 4);
   assert.equal(await page.locator(".context-drawer").count(), 0);
+  assert.equal(await page.getByRole("button", {name: /Exit simulation and return to world selection/i}).count(), 1);
   const directive = page.locator(".next-directive");
   assert.match(await directive.innerText(), /Write Tidecinder's next descendant/i);
   assert.match(await directive.innerText(), /Ancestral DNA map.*pulsing \+ node/is);
@@ -67,6 +68,16 @@ const results = [];
   await event.waitFor({state: "visible"});
   assert.match(await event.innerText(), /Survival trait/i);
   await event.getByRole("button", {name: /Close Black Drought/i}).click();
+
+  await page.locator(".context-dock > button", {hasText: "ECOSYSTEM"}).click();
+  const ecosystem = page.getByRole("dialog", {name: "Ecosystem controls"});
+  await ecosystem.waitFor({state: "visible"});
+  assert.match(await ecosystem.innerText(), /no wallet or retirement transaction is needed/i);
+  assert.equal(await ecosystem.getByRole("button", {name: /End my run/i}).count(), 0);
+  await page.screenshot({path: "artifacts/evolving-simulation-exit-desktop.png", fullPage: true});
+  await ecosystem.getByRole("button", {name: /Exit simulation/i}).click();
+  await page.locator(".command-lobby").waitFor({state: "visible"});
+  assert.match(page.url(), /[?&]view=lobby(?:&|$)/);
   results.push({scenario: "desktop contextual cockpit", errors});
   await page.close();
 }
