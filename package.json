@@ -1,0 +1,53 @@
+{
+  "name": "evolving-to-survive",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:worker": "wrangler dev",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:visual": "node artifacts/visual-check.mjs",
+    "test:readability": "node artifacts/readability-check.mjs",
+    "test:containment": "node artifacts/text-containment-check.mjs",
+    "test:contract": ".venv\\Scripts\\pytest.exe tests/direct -q",
+    "test:integration": ".venv\\Scripts\\gltest.exe tests/integration/test_studionet.py -v -s --network studionet",
+    "lint:contract": ".venv\\Scripts\\genvm-lint.exe check contracts/evolving_to_survive_v2.py --json",
+    "typecheck:contract": "set \"PATH=%CD%\\.venv\\Scripts;%PATH%\" && .venv\\Scripts\\genvm-lint.exe typecheck contracts/evolving_to_survive_v2.py --json",
+    "schema:contract": ".venv\\Scripts\\genvm-lint.exe schema contracts/evolving_to_survive_v2.py --output abi/evolving_to_survive.json",
+    "verify": "npm run lint:contract && npm run typecheck:contract && npm run test:contract && npm test && npm run build",
+    "deploy:contract": "genlayer deploy --contract contracts/evolving_to_survive_v2.py",
+    "deploy:worker": "wrangler deploy"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "3.37.1",
+    "genlayer-js": "1.1.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "viem": "2.55.17"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260823.1",
+    "@solana-program/memo": "0.8.0",
+    "@solana-program/system": "0.8.0",
+    "@solana-program/token": "0.6.0",
+    "@solana/kit": "3.0.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "playwright-core": "1.62.1",
+    "typescript": "7.0.2",
+    "vite": "7.3.6",
+    "vitest": "4.1.11",
+    "wrangler": "4.125.0"
+  },
+  "overrides": {
+    "axios": "1.19.0",
+    "ws@^8.0.0": "8.21.3"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

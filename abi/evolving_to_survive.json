@@ -1,0 +1,310 @@
+{
+  "ctor": {
+    "params": [],
+    "kwparams": {}
+  },
+  "methods": {
+    "advance_phase": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "cancel_planet": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "commit_action": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ],
+        [
+          "action_commitment",
+          "string"
+        ],
+        [
+          "action_cost",
+          "int"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "concede_species": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ],
+        [
+          "species_id",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "create_planet": {
+      "params": [
+        [
+          "planet_name",
+          "string"
+        ],
+        [
+          "biome",
+          "string"
+        ],
+        [
+          "max_players",
+          "int"
+        ],
+        [
+          "era_limit",
+          "int"
+        ],
+        [
+          "phase_window_seconds",
+          "int"
+        ],
+        [
+          "species_name",
+          "string"
+        ],
+        [
+          "body_plan",
+          "string"
+        ],
+        [
+          "founder_description",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "get_biome_catalog": {
+      "params": [],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "get_contract_state": {
+      "params": [],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "get_gene_catalog": {
+      "params": [],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "get_lobby": {
+      "params": [
+        [
+          "viewer",
+          "address"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "get_planet": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ],
+        [
+          "viewer",
+          "address"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "get_player_planet": {
+      "params": [
+        [
+          "player",
+          "address"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "get_profile": {
+      "params": [
+        [
+          "player",
+          "address"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": true,
+      "ret": "dict"
+    },
+    "join_planet": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ],
+        [
+          "species_name",
+          "string"
+        ],
+        [
+          "body_plan",
+          "string"
+        ],
+        [
+          "founder_description",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "lock_actions": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "reveal_action": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ],
+        [
+          "slot",
+          "int"
+        ],
+        [
+          "kind",
+          "string"
+        ],
+        [
+          "species_id",
+          "string"
+        ],
+        [
+          "secondary_species_id",
+          "string"
+        ],
+        [
+          "first_gene",
+          "string"
+        ],
+        [
+          "second_gene",
+          "string"
+        ],
+        [
+          "proposal",
+          "string"
+        ],
+        [
+          "child_name",
+          "string"
+        ],
+        [
+          "action_salt",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "start_planet": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    },
+    "verify_portrait": {
+      "params": [
+        [
+          "planet_id",
+          "string"
+        ],
+        [
+          "species_id",
+          "string"
+        ],
+        [
+          "node_id",
+          "string"
+        ],
+        [
+          "image_url",
+          "string"
+        ],
+        [
+          "image_sha256",
+          "string"
+        ],
+        [
+          "candidate_image",
+          "bytes"
+        ],
+        [
+          "ancestor_image_a",
+          "bytes"
+        ],
+        [
+          "ancestor_image_b",
+          "bytes"
+        ]
+      ],
+      "kwparams": {},
+      "readonly": false,
+      "ret": "null",
+      "payable": false
+    }
+  }
+}

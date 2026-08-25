@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.venv/
+.wrangler/
+artifacts/
+contracts/
+migrations/
+tests/
+worker/
+**/__pycache__/
+**/*.pyc

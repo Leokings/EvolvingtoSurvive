@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "evolving-to-survive",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-01",
+  "ai": {
+    "binding": "AI"
+  },
+  "vars": {
+    "FRONTEND_ORIGINS": "https://evolving-to-survive.vercel.app"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PORTRAITS",
+      "bucket_name": "evolving-to-survive-portraits",
+      "preview_bucket_name": "evolving-to-survive-portraits-preview"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "evolving-to-survive",
+      "database_id": "6e054c4e-ee6d-4399-90a9-c1fc470d64d2",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": ["17 * * * *"]
+  }
+}

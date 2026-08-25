@@ -1,0 +1,10 @@
+{
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "contractAddress": "0x579B79Ba871FA7a99E747026C5030D6d462C5118",
+  "contractClass": "EvolvingtoSurvive",
+  "contractVersion": 2,
+  "deploymentTransaction": "0x1f36bc8754280456ad96fd6179d861126b48c5a66c4fa12a606f80b4d34fbc2a",
+  "verifiedAt": "2026-08-24T14:37:14.4574423Z",
+  "verification": "FINALIZED; get_contract_state.version=2; schema=17-methods"
+}

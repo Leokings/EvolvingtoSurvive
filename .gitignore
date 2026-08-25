@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.artifacts/
+.wrangler/
+.vercel/
+coverage/
+deployments/*.local.json
+artifacts/*.png
+artifacts/*.jpg
+artifacts/*.jpeg
