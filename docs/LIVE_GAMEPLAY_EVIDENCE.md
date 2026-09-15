@@ -69,6 +69,24 @@ Era 2 readback:
 - `Tidecrawler` respiration stat increased from `3` to `6` (`+3`).
 - New ancestry node: `ets2-7-n2`; its evolved portrait is `accepted` and canonical.
 
+### Era 3 — Walking Caldera
+
+| Action | Wallet | Transaction |
+|---|---|---|
+| Commit hidden conserve action | Creator | [`0x9bd67737…0e8267`](https://explorer-studio.genlayer.com/tx/0x9bd6773777904acec310aaf072fb5b049d99a5941d7a2300b6f474a0b70e8267) |
+| Commit hidden conserve action | Challenger | [`0xfb35d7f8…6f53fb`](https://explorer-studio.genlayer.com/tx/0xfb35d7f8105f906aa7ddb1d2bfab146287c12a8809ef52db3a001b26b36f53fb) |
+| Lock action plan | Creator | [`0xe0b24f12…c5b46f`](https://explorer-studio.genlayer.com/tx/0xe0b24f12141fe2447ad4272453f6c8f5ff4161dd0df178551103123fe1c5b46f) |
+| Lock action plan | Challenger | [`0x919d6fd0…b2d6f1`](https://explorer-studio.genlayer.com/tx/0x919d6fd00faacf03e6abc01b91ef73dcd517a2d8afa6cbae46ef850c29b2d6f1) |
+| Reveal conserve action | Creator | [`0x2eb59d6c…81c8db`](https://explorer-studio.genlayer.com/tx/0x2eb59d6c4b4d9761c62911548ebd8c1063969a378d63c996833c797b1881c8db) |
+| Reveal conserve action and resolve era | Challenger | [`0xc404d988…13c4a7`](https://explorer-studio.genlayer.com/tx/0xc404d98838dd4744583fc8246fb73432d9f7e82cb19003bf87a6b9f46913c4a7) |
+
+Era 3 readback:
+
+- Both wallets successfully revealed their independent conserve plans.
+- The creator drew `symbiotic_algae`; the challenger drew `filter_gills`.
+- The `Walking Caldera` mobility hazard resolved against both ecosystems.
+- Both ecosystems survived and the contract opened era 4 for parallel planning.
+
 ## Final on-chain readback
 
 After the transactions above, a `LATEST_FINAL` contract read returned:
@@ -76,15 +94,15 @@ After the transactions above, a `LATEST_FINAL` contract read returned:
 | Field | Value |
 |---|---|
 | Status | `active` |
-| Era | `3` |
+| Era | `4` |
 | Phase | `commit` |
-| Revision | `23` |
-| Revealed action-history records | `4` |
-| Cinderwing population / mutation / key stat | `8` / `1` / thermal `6` |
-| Tidecrawler population / mutation / key stat | `8` / `1` / respiration `6` |
+| Revision | `31` |
+| Revealed action-history records | `6` |
+| Cinderwing population / mutation / key stat | `2` / `1` / thermal `6` |
+| Tidecrawler population / mutation / key stat | `2` / `1` / respiration `6` |
 | Current portrait status for both species | `accepted` |
 
-This readback proves the second wallet did more than join: both addresses independently committed, locked, and revealed in two complete eras, and the contract advanced from era 1 to era 3 with the resulting state preserved.
+This readback proves the second wallet did more than join: both addresses independently committed, locked, and revealed in three complete eras, and the contract advanced from era 1 to era 4 with the resulting state preserved.
 
 ## Reproducible verification
 
@@ -95,4 +113,4 @@ $env:ETS_LIVE_GAMEPLAY_PROOF = "1"
 .venv\Scripts\gltest.exe tests/integration/test_live_gameplay_flow.py -v -s --network studionet
 ```
 
-Latest completed run: `1 passed in 1204.32s (20:04)`.
+Proof execution: the first two eras passed in `1204.32s (20:04)`; the resume-safe same-wallet continuation through era 3 passed in `304.70s (05:04)` without duplicating earlier transactions.

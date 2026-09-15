@@ -1,6 +1,6 @@
 # EvolvingtoSurvive — More-information response
 
-> **New two-wallet gameplay proof:** The follow-up live run now includes 19 successful StudioNet transactions across world creation, second-wallet join, founder verification, two complete commit/lock/reveal eras, two accepted mutations, and evolved portrait verification. See [`LIVE_GAMEPLAY_EVIDENCE.md`](./LIVE_GAMEPLAY_EVIDENCE.md).
+> **New two-wallet gameplay proof:** The follow-up live run now includes 25 successful StudioNet transactions across world creation, second-wallet join, founder verification, three complete commit/lock/reveal eras, two accepted mutations, and evolved portrait verification. See [`LIVE_GAMEPLAY_EVIDENCE.md`](./LIVE_GAMEPLAY_EVIDENCE.md).
 
 Updated: September 15, 2026
 

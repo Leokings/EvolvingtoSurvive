@@ -545,7 +545,7 @@ def public_evidence(state, final_state):
     }
 
 
-def test_two_wallets_complete_two_live_eras():
+def test_two_wallets_complete_three_live_eras():
     state = load_or_create_state()
     creator = create_account(state["wallets"]["creator"]["private_key"])
     challenger = create_account(state["wallets"]["challenger"]["private_key"])
@@ -658,12 +658,20 @@ def test_two_wallets_complete_two_live_eras():
         ensure_current_portrait(
             state, actor, contract, state["planet_id"], species["species_id"]
         )
+
+    play_era(
+        state,
+        3,
+        creator_contract,
+        challenger_contract,
+        {"creator": "conserve", "challenger": "conserve"},
+    )
     final_state = read_planet(creator_contract, state["planet_id"], creator.address)
 
     assert final_state["status"] == "active"
-    assert final_state["era"] == 3
+    assert final_state["era"] == 4
     assert final_state["phase"] == "commit"
-    assert len(final_state["action_history"]) == 4
+    assert len(final_state["action_history"]) == 6
     assert all(action["revealed"] for action in final_state["action_history"])
     assert all(
         transaction["status"] == "FINALIZED"
