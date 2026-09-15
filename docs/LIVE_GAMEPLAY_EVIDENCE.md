@@ -1,6 +1,6 @@
 # EvolvingtoSurvive — Live Two-Wallet Gameplay Evidence
 
-This is submission-ready evidence from the deployed EvolvingtoSurvive v2 contract on GenLayer StudioNet. It is a real two-wallet match, not the training simulation.
+This is submission-ready evidence from the deployed EvolvingtoSurvive v2 contract on GenLayer StudioNet. It is a complete real two-wallet match, not the training simulation. The world was ended through its normal fourth-era resolution rather than cancelled or abandoned.
 
 ## Deployment
 
@@ -17,7 +17,7 @@ The two test-only wallets are locally recoverable, but their private keys are de
 
 ## Transaction history
 
-Every transaction below reached `FINALIZED` and its leader receipt reported `SUCCESS`.
+Every transaction below reached `FINALIZED` and its leader receipt reported `SUCCESS`. Portrait validation outcomes are reported separately because a successful contract execution can legitimately record a rejected image candidate.
 
 ### World setup and founder gate
 
@@ -87,22 +87,45 @@ Era 3 readback:
 - The `Walking Caldera` mobility hazard resolved against both ecosystems.
 - Both ecosystems survived and the contract opened era 4 for parallel planning.
 
+### Era 4 — Black Drought and world ending
+
+| Action | Wallet | Transaction |
+|---|---|---|
+| Commit hidden water adaptation | Creator | [`0xba763146…e29ad`](https://explorer-studio.genlayer.com/tx/0xba763146cbc2aaf64cc3829411ca77fb52e5220d63ccbecd7befad422efe29ad) |
+| Commit hidden conserve action | Challenger | [`0x16b53e73…999a5`](https://explorer-studio.genlayer.com/tx/0x16b53e7364521fb51e87962d412845167cf884106e7a914bd5a9e9262ac999a5) |
+| Lock action plan | Creator | [`0x2bbfaab3…4c9a3`](https://explorer-studio.genlayer.com/tx/0x2bbfaab3f53f0ce1e3b0753c5541af57f88d07b5b18b4f456097e2ecaa14c9a3) |
+| Lock action plan and open reveal phase | Challenger | [`0x5f9b9d32…3fb8f`](https://explorer-studio.genlayer.com/tx/0x5f9b9d323e2808d60622f66967d046e97a34638b8f21e726e9fb24d8b303fb8f) |
+| Reveal water adaptation | Creator | [`0x88f8b47f…bdd14`](https://explorer-studio.genlayer.com/tx/0x88f8b47f6d529b374b7040e02893ec8e8b2e0678d98b77573c5f0967fd9bdd14) |
+| Reveal conserve action, resolve Black Drought, and end world | Challenger | [`0x25e3e13d…90e10`](https://explorer-studio.genlayer.com/tx/0x25e3e13d7c8e9b35779ad746791fb8251a40bb8836a5653d0ddb34022ac90e10) |
+| Verify evolved portrait candidate 1 (`missing_traits`) | Creator | [`0x94669915…00f20`](https://explorer-studio.genlayer.com/tx/0x946699159d0260648b8c4dc3792cc75d0b498d6258cfb40ed3fe6eb79f900f20) |
+| Verify replacement portrait (`accepted`) | Creator | [`0xaff7e835…9c452`](https://explorer-studio.genlayer.com/tx/0xaff7e83560b44b0e69b90c75264ef7ab5fa5e51d1aa9c198844b3aa4f1a9c452) |
+
+Era 4 and ending readback:
+
+- Validator consensus accepted `Algal Filter-Recycling Gills` with reason `ok`.
+- The creator combined `filter_gills` and `symbiotic_algae`.
+- `Cinderwing` water increased from `3` to `6` (`+3`), allowing its population of `2` to survive `Black Drought`.
+- New ancestry node: `ets2-7-n3`; the first image candidate was recorded as `rejected / missing_traits`, then the replacement was `accepted` and canonical with SHA-256 `sha256:2d4367c6f9eb721f58820b194716f6edbf93ed98e72cbc16b847fd3e678fa1a3`.
+- The challenger successfully revealed its conserve action, but `Tidecrawler` had water `3` against threshold `6` and became extinct.
+- The second wallet's final reveal resolved the era, ended the world, and recorded the creator as winner.
+
 ## Final on-chain readback
 
 After the transactions above, a `LATEST_FINAL` contract read returned:
 
 | Field | Value |
 |---|---|
-| Status | `active` |
+| Status | `complete` |
 | Era | `4` |
-| Phase | `commit` |
-| Revision | `31` |
-| Revealed action-history records | `6` |
-| Cinderwing population / mutation / key stat | `2` / `1` / thermal `6` |
-| Tidecrawler population / mutation / key stat | `2` / `1` / respiration `6` |
+| Phase | empty (no further actions) |
+| Winner | Creator — `0x81C7583c5Eb4Fe9D72E4F59dB4b1E47a5b2d3f82` |
+| Revision | `41` |
+| Revealed action-history records | `8` |
+| Cinderwing | alive; population `2`; mutations `2`; thermal `6`; water `6` |
+| Tidecrawler | extinct; population `0`; mutations `1`; respiration `6`; water `3` |
 | Current portrait status for both species | `accepted` |
 
-This readback proves the second wallet did more than join: both addresses independently committed, locked, and revealed in three complete eras, and the contract advanced from era 1 to era 4 with the resulting state preserved.
+This readback proves the second wallet did more than join: both addresses independently committed, locked, and revealed in all four eras. The final reveal ended the world through normal gameplay, persisted the extinction outcome, and recorded an on-chain winner. In total, the run produced `33` transactions with `FINALIZED / SUCCESS` receipts.
 
 ## Reproducible verification
 
@@ -113,4 +136,4 @@ $env:ETS_LIVE_GAMEPLAY_PROOF = "1"
 .venv\Scripts\gltest.exe tests/integration/test_live_gameplay_flow.py -v -s --network studionet
 ```
 
-Proof execution: the first two eras passed in `1204.32s (20:04)`; the resume-safe same-wallet continuation through era 3 passed in `304.70s (05:04)` without duplicating earlier transactions.
+Proof execution: the first two eras passed in `1204.32s (20:04)`; the resume-safe continuation through era 3 passed in `304.70s (05:04)`; and the normal final-era ending plus canonical portrait retry passed in `474.99s (07:54)`. A fresh completed-world rerun then passed in `60.15s` with the transaction count still exactly `33`, proving earlier writes were reused rather than duplicated.

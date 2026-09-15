@@ -1,6 +1,6 @@
 # EvolvingtoSurvive — More-information response
 
-> **New two-wallet gameplay proof:** The follow-up live run now includes 25 successful StudioNet transactions across world creation, second-wallet join, founder verification, three complete commit/lock/reveal eras, two accepted mutations, and evolved portrait verification. See [`LIVE_GAMEPLAY_EVIDENCE.md`](./LIVE_GAMEPLAY_EVIDENCE.md).
+> **Completed two-wallet gameplay proof:** The follow-up live run now includes 33 successful StudioNet transactions across world creation, second-wallet join, founder verification, all four commit/lock/reveal eras, three accepted mutations, portrait verification, normal world completion, and winner readback. See [`LIVE_GAMEPLAY_EVIDENCE.md`](./LIVE_GAMEPLAY_EVIDENCE.md).
 
 Updated: September 15, 2026
 
@@ -16,7 +16,7 @@ Regression coverage now exercises the real GenLayer SDK encoding path for `verif
 
 The patch is live at <https://evolving-to-survive.vercel.app>. The Vercel production deployment completed successfully, the fresh-page production smoke test reported no browser errors or error overlay, and the production portrait service returned real image bytes whose SHA-256 digest matched its response.
 
-Finally, a new two-wallet flow was executed against the deployed GenLayer StudioNet contract and production portrait worker—not the training simulation. Both founder `verify_portrait` calls reached `FINALIZED` with successful contract execution. A new, independent `LATEST_FINAL` client read then showed both founders as canonical after the original process had ended, and the generated URLs returned immutable canonical images with matching hashes. The planet was started successfully and read back as `status=active`, `phase=commit`, proving the next evolution action is available.
+Finally, a complete two-wallet match was executed against the deployed GenLayer StudioNet contract and production portrait worker—not the training simulation. Both wallets independently committed, locked, and revealed through all four eras. The last reveal resolved `Black Drought` and ended the world normally. A fresh `LATEST_FINAL` read returned `status=complete`, an empty phase, eight revealed action records, creator winner `0x81C7583c5Eb4Fe9D72E4F59dB4b1E47a5b2d3f82`, surviving `Cinderwing` population `2`, and extinct `Tidecrawler` population `0`. The final evolved portrait was also retried after a transparent `missing_traits` rejection and then accepted and canonicalized.
 
 ## Production endpoints
 
@@ -27,7 +27,17 @@ Finally, a new two-wallet flow was executed against the deployed GenLayer Studio
 - StudioNet contract: [`0x579B79Ba871FA7a99E747026C5030D6d462C5118`](https://explorer-studio.genlayer.com/address/0x579B79Ba871FA7a99E747026C5030D6d462C5118)
 - Production portrait service: <https://evolving-to-survive.leokings588.workers.dev/api/health>
 
-## Live transaction evidence
+## Completed match and world-ending evidence
+
+- World: `ets2-7` (`Wallet Duel 2d3f82`)
+- Creator: `0x81C7583c5Eb4Fe9D72E4F59dB4b1E47a5b2d3f82`
+- Challenger: `0xDbFC2e70880eAab71dcc8a429d1F2B5E2E8b2711`
+- World-ending transaction: [`0x25e3e13d…90e10`](https://explorer-studio.genlayer.com/tx/0x25e3e13d7c8e9b35779ad746791fb8251a40bb8836a5653d0ddb34022ac90e10) — challenger reveal, final-era resolution, `FINALIZED / SUCCESS`
+- Accepted final portrait transaction: [`0xaff7e835…9c452`](https://explorer-studio.genlayer.com/tx/0xaff7e83560b44b0e69b90c75264ef7ab5fa5e51d1aa9c198844b3aa4f1a9c452) — `FINALIZED / SUCCESS`, application readback `accepted / ok`
+- Final readback: `status=complete`, `era=4`, `phase=""`, `revision=41`, `winner=creator`, `action_history=8`
+- Full 33-transaction ledger: [`LIVE_GAMEPLAY_EVIDENCE.md`](./LIVE_GAMEPLAY_EVIDENCE.md)
+
+## Original portrait-fix transaction evidence
 
 All receipts below were checked for both lifecycle status and GenVM execution result. `FINALIZED` alone was not treated as proof of successful execution.
 
@@ -96,6 +106,7 @@ The fresh-process readback returned:
 - Containment checks: `94` scenarios clean, `0` failures
 - Baseline StudioNet integration: passed with two wallets and two founders
 - Opt-in live portrait lifecycle: `1 passed` with real `FINALIZED / SUCCESS` transactions and `LATEST_FINAL` readback
+- Opt-in complete live gameplay: `1 passed in 474.99s` on its final resume, with two wallets, four resolved eras, normal world completion, canonical final ancestry, and `LATEST_FINAL` winner readback
 - Fresh production smoke: website loaded without browser errors; portrait API returned `201`; downloaded image digest matched
 
 ## Reproduction commands
@@ -117,6 +128,13 @@ The stateful proof is opt-in because it creates real StudioNet transactions:
 ```powershell
 $env:ETS_LIVE_PORTRAIT_PROOF = "1"
 .venv\Scripts\gltest.exe tests/integration/test_live_portrait_flow.py -v -s --network studionet
+```
+
+The complete two-wallet campaign is separately reproducible and resume-safe:
+
+```powershell
+$env:ETS_LIVE_GAMEPLAY_PROOF = "1"
+.venv\Scripts\gltest.exe tests/integration/test_live_gameplay_flow.py -v -s --network studionet
 ```
 
 The proof runner submits each write once, retains its hash, tolerates transient StudioNet RPC polling failures, waits for `FINALIZED`, asserts GenVM `SUCCESS`, and then verifies state through `LATEST_FINAL` reads.

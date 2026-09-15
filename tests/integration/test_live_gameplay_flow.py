@@ -205,10 +205,11 @@ def read_planet(contract, planet_id, viewer):
     )
 
 
-def species_by_owner(planet, owner):
+def species_by_owner(planet, owner, living_only=True):
     return next(
         species for species in planet["species"]
-        if species["owner"].lower() == owner.lower() and species["alive"]
+        if species["owner"].lower() == owner.lower()
+        and (species["alive"] or not living_only)
     )
 
 
@@ -358,6 +359,15 @@ def prepare_action(state, era, actor, owner, species_id, kind):
         proposal = (
             "Link expanded chambers in the hollow bones to layered filter gills "
             "so volcanic glass is trapped before oxygen exchange."
+        )
+    elif kind == "adapt_water":
+        action_kind = "adapt"
+        first_gene = "filter_gills"
+        second_gene = "symbiotic_algae"
+        proposal = (
+            "Route scarce mineral-laden water through layered filter gills and "
+            "symbiotic algae so the organism can recycle moisture during the "
+            "black drought."
         )
     else:
         action_kind = "conserve"
@@ -514,6 +524,7 @@ def public_evidence(state, final_state):
             "status": final_state["status"],
             "era": final_state["era"],
             "phase": final_state["phase"],
+            "winner": final_state["winner"],
             "revision": final_state["revision"],
             "last_event": final_state["last_event"],
             "action_history": [
@@ -531,6 +542,8 @@ def public_evidence(state, final_state):
                     "owner": species["owner"],
                     "species_id": species["species_id"],
                     "name": species["name"],
+                    "alive": species["alive"],
+                    "retired_reason": species["retired_reason"],
                     "population": species["population"],
                     "stats": species["stats"],
                     "accepted_mutations": species["accepted_mutations"],
@@ -545,7 +558,7 @@ def public_evidence(state, final_state):
     }
 
 
-def test_two_wallets_complete_three_live_eras():
+def test_two_wallets_finish_live_campaign():
     state = load_or_create_state()
     creator = create_account(state["wallets"]["creator"]["private_key"])
     challenger = create_account(state["wallets"]["challenger"]["private_key"])
@@ -609,8 +622,8 @@ def test_two_wallets_complete_three_live_eras():
         )
 
     planet = read_planet(creator_contract, state["planet_id"], creator.address)
-    creator_species = species_by_owner(planet, creator.address)
-    challenger_species = species_by_owner(planet, challenger.address)
+    creator_species = species_by_owner(planet, creator.address, living_only=False)
+    challenger_species = species_by_owner(planet, challenger.address, living_only=False)
     ensure_current_portrait(
         state, "creator", creator_contract, state["planet_id"], creator_species["species_id"]
     )
@@ -639,7 +652,9 @@ def test_two_wallets_complete_three_live_eras():
 
     planet = read_planet(creator_contract, state["planet_id"], creator.address)
     for actor, contract in (("creator", creator_contract), ("challenger", challenger_contract)):
-        species = species_by_owner(planet, contract.account.address)
+        species = species_by_owner(
+            planet, contract.account.address, living_only=False
+        )
         ensure_current_portrait(
             state, actor, contract, state["planet_id"], species["species_id"]
         )
@@ -654,7 +669,9 @@ def test_two_wallets_complete_three_live_eras():
 
     final_state = read_planet(creator_contract, state["planet_id"], creator.address)
     for actor, contract in (("creator", creator_contract), ("challenger", challenger_contract)):
-        species = species_by_owner(final_state, contract.account.address)
+        species = species_by_owner(
+            final_state, contract.account.address, living_only=False
+        )
         ensure_current_portrait(
             state, actor, contract, state["planet_id"], species["species_id"]
         )
@@ -668,10 +685,28 @@ def test_two_wallets_complete_three_live_eras():
     )
     final_state = read_planet(creator_contract, state["planet_id"], creator.address)
 
-    assert final_state["status"] == "active"
+    play_era(
+        state,
+        4,
+        creator_contract,
+        challenger_contract,
+        {"creator": "adapt_water", "challenger": "conserve"},
+    )
+    final_state = read_planet(creator_contract, state["planet_id"], creator.address)
+    for actor, contract in (("creator", creator_contract), ("challenger", challenger_contract)):
+        species = species_by_owner(
+            final_state, contract.account.address, living_only=False
+        )
+        ensure_current_portrait(
+            state, actor, contract, state["planet_id"], species["species_id"]
+        )
+    final_state = read_planet(creator_contract, state["planet_id"], creator.address)
+
+    assert final_state["status"] == "complete"
     assert final_state["era"] == 4
-    assert final_state["phase"] == "commit"
-    assert len(final_state["action_history"]) == 6
+    assert final_state["phase"] == ""
+    assert final_state["winner"].lower() == creator.address.lower()
+    assert len(final_state["action_history"]) == 8
     assert all(action["revealed"] for action in final_state["action_history"])
     assert all(
         transaction["status"] == "FINALIZED"
