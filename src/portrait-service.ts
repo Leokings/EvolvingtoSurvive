@@ -12,6 +12,19 @@ type CachedPortraitCandidate = PortraitCandidate & {
   cachedAt: number;
 };
 
+type SubmitPortraitCandidateOptions<Result> = {
+  planetId: string;
+  nodeId: string;
+  speciesOwner: string;
+  generate: () => Promise<PortraitCandidate>;
+  submit: (
+    candidate: PortraitCandidate,
+    candidateBytes: Uint8Array,
+    reused: boolean,
+  ) => Promise<Result>;
+  onCandidateReady?: (candidate: PortraitCandidate, reused: boolean) => void;
+};
+
 function endpoint(path: string): string {
   return `${API_URL}${path}`;
 }
@@ -233,4 +246,48 @@ export async function loadVerifiedCandidate(
     throw new Error("Portrait bytes do not match the service hash.");
   }
   return bytes;
+}
+
+/**
+ * Owns the candidate lifecycle around the wallet submission. A rendered image
+ * is cached before any onchain work begins and is cleared only after submit
+ * succeeds. A wallet/RPC failure therefore leaves the exact candidate ready
+ * for the next click instead of spending another generation request.
+ */
+export async function submitPortraitCandidate<Result>({
+  planetId,
+  nodeId,
+  speciesOwner,
+  generate,
+  submit,
+  onCandidateReady,
+}: SubmitPortraitCandidateOptions<Result>): Promise<{
+  candidate: PortraitCandidate;
+  result: Result;
+  reused: boolean;
+}> {
+  let candidate = loadCachedPortraitCandidate(planetId, nodeId, speciesOwner);
+  let candidateBytes: Uint8Array | null = null;
+  let reused = candidate !== null;
+
+  if (candidate) {
+    try {
+      candidateBytes = await loadVerifiedCandidate(candidate);
+    } catch {
+      clearCachedPortraitCandidate(planetId, nodeId, speciesOwner);
+      candidate = null;
+      reused = false;
+    }
+  }
+
+  if (!candidate) {
+    candidate = await generate();
+    cachePortraitCandidate(planetId, nodeId, speciesOwner, candidate);
+    candidateBytes = await loadVerifiedCandidate(candidate);
+  }
+
+  onCandidateReady?.(candidate, reused);
+  const result = await submit(candidate, candidateBytes!, reused);
+  clearCachedPortraitCandidate(planetId, nodeId, speciesOwner);
+  return {candidate, result, reused};
 }

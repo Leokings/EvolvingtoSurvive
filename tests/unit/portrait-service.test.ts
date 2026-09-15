@@ -5,6 +5,8 @@ import {
   clearCachedPortraitCandidate,
   fetchImageBytes,
   loadCachedPortraitCandidate,
+  sha256,
+  submitPortraitCandidate,
 } from "../../src/portrait-service";
 
 function memoryStorage(): Storage {
@@ -60,5 +62,46 @@ describe("portrait candidate recovery", () => {
 
     await expect(loading).resolves.toEqual(new Uint8Array([1, 2, 3]));
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("reuses the exact saved candidate after wallet submission fails", async () => {
+    const bytes = new Uint8Array([0, 1, 127, 128, 255, 42]);
+    const candidate = {
+      candidateId: "candidate-retry",
+      url: "https://portraits.example/api/portraits/candidate-retry",
+      sha256: await sha256(bytes),
+    };
+    const generate = vi.fn().mockResolvedValue(candidate);
+    const submit = vi.fn()
+      .mockRejectedValueOnce(new TypeError("Do not know how to serialize a BigInt"))
+      .mockResolvedValueOnce("FINALIZED");
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => (
+      new Response(bytes.slice(), {status: 200})
+    ));
+    const options = {
+      planetId: "planet-1",
+      nodeId: "node-1",
+      speciesOwner: "0xABC",
+      generate,
+      submit,
+    };
+
+    await expect(submitPortraitCandidate(options)).rejects.toThrow(
+      "Do not know how to serialize a BigInt",
+    );
+    expect(loadCachedPortraitCandidate("planet-1", "node-1", "0xabc")).toEqual(candidate);
+
+    await expect(submitPortraitCandidate(options)).resolves.toEqual({
+      candidate,
+      result: "FINALIZED",
+      reused: true,
+    });
+    expect(generate).toHaveBeenCalledOnce();
+    expect(submit).toHaveBeenCalledTimes(2);
+    expect(submit.mock.calls[0]?.[0]).toEqual(candidate);
+    expect(submit.mock.calls[1]?.[0]).toEqual(candidate);
+    expect(submit.mock.calls[0]?.[1]).toEqual(bytes);
+    expect(submit.mock.calls[1]?.[1]).toEqual(bytes);
+    expect(loadCachedPortraitCandidate("planet-1", "node-1", "0xabc")).toBeNull();
   });
 });

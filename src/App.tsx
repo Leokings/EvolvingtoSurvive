@@ -27,6 +27,7 @@ import {
   type LobbyPlanet,
   type PlanetState,
   type PlayerProfile,
+  type PortraitCandidate,
 } from "./game-model";
 import {
   createEvolutionAdapter,
@@ -34,16 +35,15 @@ import {
   SubmittedTransactionError,
 } from "./genlayer-game";
 import {
-  cachePortraitCandidate,
   clearCachedPortraitCandidate,
   fetchImageBytes,
   loadCachedPortraitCandidate,
-  loadVerifiedCandidate,
   markPortraitCanonical,
   requestPortrait,
   retainCanonicalNode,
+  submitPortraitCandidate,
 } from "./portrait-service";
-import type {ConnectedWallet, WalletTransactionSender} from "./wallet-network";
+import type {ConnectedWallet} from "./wallet-network";
 
 const EMPTY_PROFILE: PlayerProfile = {
   player: "",
@@ -145,14 +145,12 @@ export default function App({
   wallet,
   authenticated,
   demo = false,
-  sendWalletTransaction,
   onConnect,
   onDisconnect,
 }: {
   wallet: ConnectedWallet | null;
   authenticated: boolean;
   demo?: boolean;
-  sendWalletTransaction?: WalletTransactionSender;
   onConnect: () => void;
   onDisconnect: () => void;
 }) {
@@ -204,8 +202,8 @@ export default function App({
     return createEvolutionAdapter(wallet, (hash, action) => {
       setTransaction({hash, action});
       setNotice("Transaction submitted. GenLayer validators are reaching consensus…");
-    }, sendWalletTransaction);
-  }, [sendWalletTransaction, wallet]);
+    });
+  }, [wallet]);
 
   const secrets = useMemo(() => {
     if (!planet || !address) return {};
@@ -401,12 +399,13 @@ export default function App({
     setBusy(`portrait-${speciesId}`);
     setError("");
     setNotice("Preparing a verification-ready phenotype…");
-    let candidate = loadCachedPortraitCandidate(planet.planetId, node.nodeId, species.owner);
-    let stage: "parents" | "candidate" | "pixels" | "wallet" = "parents";
+    let candidate: PortraitCandidate | null = null;
+    const progress: {stage: "parents" | "candidate" | "pixels" | "wallet"} = {
+      stage: "parents",
+    };
     try {
       if (node.portrait.status === "rejected") {
         clearCachedPortraitCandidate(planet.planetId, node.nodeId, species.owner);
-        candidate = null;
       }
       const parentNodes = node.parentNodeIds.map((nodeId) => findNode(planet, nodeId));
       if (parentNodes.some((parent) => !parent || parent.portrait.status !== "accepted" || !parent.portrait.url)) {
@@ -424,39 +423,41 @@ export default function App({
         retainCanonicalNode(parentSpecies[index]!, parent!)
       )));
       const parentUrls = parentNodes.map((parent) => parent!.portrait.url);
-      stage = "candidate";
-      if (candidate) {
-        setNotice("Saved portrait found. Retrying its onchain verification—no new render needed.");
-        try {
-          await loadVerifiedCandidate(candidate);
-        } catch {
-          clearCachedPortraitCandidate(planet.planetId, node.nodeId, species.owner);
-          candidate = null;
-        }
-      }
-      if (!candidate) {
-        setNotice("Rendering a compact phenotype for wallet verification…");
-        candidate = await requestPortrait(planet.planetId, species, node, parentUrls);
-        cachePortraitCandidate(planet.planetId, node.nodeId, species.owner, candidate);
-      }
-      stage = "pixels";
-      const [candidateBytes, ancestorBytes] = await Promise.all([
-        loadVerifiedCandidate(candidate),
-        Promise.all(parentUrls.map(fetchImageBytes)),
-      ]);
-      setNotice("Portrait ready. Confirm the wallet transaction so GenLayer can verify it…");
-      stage = "wallet";
-      const next = await adapter.verifyPortrait(
-        planet.planetId,
-        species.speciesId,
-        node.nodeId,
-        candidate.url,
-        candidate.sha256,
-        candidateBytes,
-        ancestorBytes[0] ?? new Uint8Array(),
-        ancestorBytes[1] ?? new Uint8Array(),
-      );
-      clearCachedPortraitCandidate(planet.planetId, node.nodeId, species.owner);
+      progress.stage = "candidate";
+      const ancestorBytesPromise = Promise.all(parentUrls.map(fetchImageBytes));
+      const submission = await submitPortraitCandidate({
+        planetId: planet.planetId,
+        nodeId: node.nodeId,
+        speciesOwner: species.owner,
+        generate: async () => {
+          setNotice("Rendering a compact phenotype for wallet verification…");
+          return requestPortrait(planet.planetId, species, node, parentUrls);
+        },
+        onCandidateReady: (readyCandidate, reused) => {
+          candidate = readyCandidate;
+          progress.stage = "pixels";
+          if (reused) {
+            setNotice("Saved portrait found. Retrying its onchain verification—no new render needed.");
+          }
+        },
+        submit: async (readyCandidate, candidateBytes) => {
+          const ancestorBytes = await ancestorBytesPromise;
+          setNotice("Portrait ready. Confirm the wallet transaction so GenLayer can verify it…");
+          progress.stage = "wallet";
+          return adapter.verifyPortrait(
+            planet.planetId,
+            species.speciesId,
+            node.nodeId,
+            readyCandidate.url,
+            readyCandidate.sha256,
+            candidateBytes,
+            ancestorBytes[0] ?? new Uint8Array(),
+            ancestorBytes[1] ?? new Uint8Array(),
+          );
+        },
+      });
+      candidate = submission.candidate;
+      const next = submission.result;
       setPlanet(next);
       setLastSyncedAt(Math.floor(Date.now() / 1_000));
       const verifiedSpecies = speciesById(next, species.speciesId);
@@ -476,16 +477,17 @@ export default function App({
         setNotice("Portrait was rejected by GenLayer vision consensus. Generate another candidate.");
       }
     } catch (cause) {
+      candidate ??= loadCachedPortraitCandidate(planet.planetId, node.nodeId, species.owner);
       const detail = friendlyError(cause);
       if (cause instanceof SubmittedTransactionError) {
         setError(detail);
       } else if (!candidate) {
         setError(detail);
-      } else if (stage === "parents") {
+      } else if (progress.stage === "parents") {
         setError(`The portrait is saved, but its parent reference could not be prepared. ${detail} Retry to reuse the same image.`);
-      } else if (stage === "pixels") {
+      } else if (progress.stage === "pixels") {
         setError(`The portrait is saved, but its verification pixels could not be loaded. ${detail} Retry to reuse the same image.`);
-      } else if (stage === "wallet") {
+      } else if (progress.stage === "wallet") {
         setError(`The portrait is saved, but the wallet could not submit its verification transaction. ${detail} Reconnect the wallet, then retry to reuse the same image.`);
       } else {
         setError(`The portrait is saved, but verification could not start. ${detail} Retry to reuse the same image.`);

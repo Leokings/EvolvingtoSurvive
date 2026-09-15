@@ -16,23 +16,6 @@ export type WalletNetworkClient = {
 
 export type ConnectedWallet = WalletNetworkClient & {address: string};
 
-export type WalletTransactionInput = {
-  from?: string;
-  to?: string;
-  nonce?: string | number | bigint;
-  gasLimit?: string | number | bigint;
-  gasPrice?: string | number | bigint;
-  data?: ArrayLike<number> | string;
-  value?: string | number | bigint;
-  chainId?: number;
-  type?: number;
-};
-
-export type WalletTransactionSender = (
-  input: WalletTransactionInput,
-  options?: {address?: string},
-) => Promise<{hash: `0x${string}`}>;
-
 const STUDIONET_CHAIN_ID_HEX = `0x${STUDIONET_CHAIN_ID.toString(16)}`;
 
 function message(cause: unknown): string {
@@ -66,89 +49,65 @@ async function providerChainId(provider: EIP1193Provider): Promise<number> {
   return typeof value === "string" ? Number(BigInt(value)) : Number(value);
 }
 
-function optionalString(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
-}
-
-function optionalQuantity(value: unknown): bigint | undefined {
-  if (typeof value === "bigint") return value;
-  if (typeof value === "number") {
-    return Number.isSafeInteger(value) && value >= 0 ? BigInt(value) : undefined;
+export function normalizeWalletRpcValue(value: unknown): unknown {
+  if (typeof value === "bigint") {
+    if (value < 0n) {
+      throw new Error("Wallet RPC quantities cannot be negative.");
+    }
+    return `0x${value.toString(16)}`;
   }
-  if (typeof value !== "string" || !/^(?:0x[0-9a-f]+|[0-9]+)$/i.test(value)) {
-    return undefined;
+  if (Array.isArray(value)) {
+    return value.map(normalizeWalletRpcValue);
   }
-  try {
-    return BigInt(value);
-  } catch {
-    return undefined;
+  if (ArrayBuffer.isView(value)) {
+    return Array.from(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
   }
-}
-
-function optionalTransactionType(value: unknown): number | undefined {
-  if (typeof value === "number") return value;
-  if (typeof value !== "string") return undefined;
-  try {
-    return Number(BigInt(value));
-  } catch {
-    return undefined;
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [key, normalizeWalletRpcValue(nested)]),
+    );
   }
+  return value;
 }
 
 /**
- * GenLayer prepares the intelligent-contract calldata, while Privy's native
- * transaction path owns the wallet prompt and broadcast. This is especially
- * important for portrait verification, whose image bundle is much larger than
- * an ordinary game action.
+ * GenLayer already prepares a valid EIP-1193 transaction, including its exact
+ * encoded intelligent-contract calldata. Keep that normal connected-wallet
+ * flow intact. The only boundary work done here is a lossless, recursive
+ * conversion of any bigint a caller may have added into a JSON-RPC hex value.
  */
-export function routeWalletTransactionsThroughPrivy(
+export function routeWalletTransactionsSafely(
   provider: EIP1193Provider,
-  walletAddress: string,
-  sendTransaction?: WalletTransactionSender,
 ): EIP1193Provider {
-  if (!sendTransaction) return provider;
   return {
     request: async (request) => {
       if (request.method !== "eth_sendTransaction") {
         return provider.request(request as never);
       }
       const params = (request as {params?: readonly unknown[]}).params;
-      const raw = params?.[0];
-      if (!raw || typeof raw !== "object") {
+      if (!params?.[0] || typeof params[0] !== "object") {
         throw new Error("Wallet transaction payload is missing.");
       }
-      const transaction = raw as Record<string, unknown>;
-      const {hash} = await sendTransaction({
-        from: optionalString(transaction.from),
-        to: optionalString(transaction.to),
-        nonce: optionalQuantity(transaction.nonce),
-        gasLimit: optionalQuantity(transaction.gas ?? transaction.gasLimit),
-        gasPrice: optionalQuantity(transaction.gasPrice),
-        data: optionalString(transaction.data),
-        value: optionalQuantity(transaction.value),
-        chainId: STUDIONET_CHAIN_ID,
-        type: optionalTransactionType(transaction.type),
-      }, {address: walletAddress});
-      return hash;
+      return provider.request({
+        ...request,
+        params: normalizeWalletRpcValue(params),
+      } as never);
     },
   } as EIP1193Provider;
 }
 
 /**
  * Small GenLayer actions are best submitted through the connected wallet's
- * EIP-1193 provider. It preserves the exact JSON-RPC payload and avoids adding
- * a second relay timeout between the wallet approval and Studionet. Portrait
- * verification is the exception: its image calldata is large enough that the
- * Privy native transaction route is more reliable for embedded wallets.
+ * EIP-1193 provider. Portrait verification adds the JSON-safe boundary guard
+ * because its large calldata previously passed through a second SDK adapter
+ * that introduced bigint values immediately before RPC serialization.
  */
 export function providerForGenLayerAction(
   provider: EIP1193Provider,
-  walletAddress: string,
   functionName: string,
-  sendTransaction?: WalletTransactionSender,
 ): EIP1193Provider {
   return functionName === "verify_portrait"
-    ? routeWalletTransactionsThroughPrivy(provider, walletAddress, sendTransaction)
+    ? routeWalletTransactionsSafely(provider)
     : provider;
 }
 

@@ -26,7 +26,6 @@ import {
   getStudionetProvider,
   providerForGenLayerAction,
   type ConnectedWallet,
-  type WalletTransactionSender,
 } from "./wallet-network";
 
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
@@ -116,7 +115,6 @@ function changed(previous: PlanetState | null, next: PlanetState | null): boolea
 export function createEvolutionAdapter(
   wallet: ConnectedWallet,
   onSubmitted?: (hash: Hash, action: string) => void,
-  sendWalletTransaction?: WalletTransactionSender,
 ): EvolutionAdapter {
   let lastPlanet: PlanetState | null = null;
 
@@ -202,9 +200,7 @@ export function createEvolutionAdapter(
     const baseProvider = await getStudionetProvider(wallet);
     const provider = providerForGenLayerAction(
       baseProvider,
-      wallet.address,
       functionName,
-      sendWalletTransaction,
     );
     const client = createClient({
       chain: studionet,
