@@ -1,7 +1,8 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 
 import {BIOMES, label} from "../catalog";
 import type {CreatePlanetInput, JoinPlanetInput, LobbyPlanet, PlayerProfile} from "../game-model";
+import {discoverWorlds, type WorldFilter} from "../world-discovery";
 import BodyPlanPicker from "./BodyPlanPicker";
 import BrandMark from "./BrandMark";
 
@@ -10,6 +11,8 @@ const DEFAULT_SPECIES: JoinPlanetInput = {
   bodyPlan: "quadruped",
   founderDescription: "",
 };
+
+const INITIAL_WORLD_LIMIT = 6;
 
 function shortAddress(address: string): string {
   return address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "Not linked";
@@ -50,6 +53,9 @@ export default function PlanetLobby({
 }) {
   const [showCreate, setShowCreate] = useState(false);
   const [joinPlanet, setJoinPlanet] = useState<LobbyPlanet | null>(null);
+  const [worldQuery, setWorldQuery] = useState("");
+  const [worldFilter, setWorldFilter] = useState<WorldFilter>("open");
+  const [visibleWorldCount, setVisibleWorldCount] = useState(INITIAL_WORLD_LIMIT);
   const [species, setSpecies] = useState(DEFAULT_SPECIES);
   const [create, setCreate] = useState<CreatePlanetInput>({
     planetName: "",
@@ -60,6 +66,11 @@ export default function PlanetLobby({
     ...DEFAULT_SPECIES,
   });
   const selectedBiome = BIOMES.find((biome) => biome.id === create.biome) ?? BIOMES[0];
+  const discoveredWorlds = useMemo(
+    () => discoverWorlds(lobby, worldQuery, worldFilter),
+    [lobby, worldFilter, worldQuery],
+  );
+  const visibleWorlds = discoveredWorlds.slice(0, visibleWorldCount);
 
   async function submitCreate(event: React.FormEvent) {
     event.preventDefault();
@@ -116,14 +127,48 @@ export default function PlanetLobby({
         <section className="world-sector" aria-labelledby="world-sector-title">
           <header className="sector-heading">
             <div><small>Live world scanner</small><h1 id="world-sector-title">Biosphere sector</h1></div>
-            <span><i /> {lobby.length} joinable world{lobby.length === 1 ? "" : "s"}</span>
+            <span><i /> {discoveredWorlds.length} shown · {lobby.length} waiting</span>
           </header>
+
+          <div className="world-discovery-tools" role="search" aria-label="World discovery controls">
+            <label>
+              <span aria-hidden="true">⌕</span>
+              <input
+                type="search"
+                value={worldQuery}
+                onChange={(event) => {
+                  setWorldQuery(event.target.value);
+                  setVisibleWorldCount(INITIAL_WORLD_LIMIT);
+                }}
+                placeholder="Search world name or ID"
+                aria-label="Search worlds by name or ID"
+              />
+              {worldQuery ? <button type="button" onClick={() => { setWorldQuery(""); setVisibleWorldCount(INITIAL_WORLD_LIMIT); }} aria-label="Clear world search">×</button> : null}
+            </label>
+            <div className="world-filter-tabs" role="group" aria-label="Filter waiting worlds">
+              {([
+                ["open", "Open slots"],
+                ["ready", "Ready"],
+                ["all", "All waiting"],
+              ] as const).map(([value, copy]) => (
+                <button
+                  key={value}
+                  className={worldFilter === value ? "active" : ""}
+                  type="button"
+                  aria-pressed={worldFilter === value}
+                  onClick={() => { setWorldFilter(value); setVisibleWorldCount(INITIAL_WORLD_LIMIT); }}
+                >{copy}</button>
+              ))}
+            </div>
+          </div>
 
           <div className={`sector-radar ${lobby.length ? "has-worlds" : "empty"}`}>
             <div className="radar-grid" aria-hidden="true"><i /><i /><i /><b /><b /></div>
-            {lobby.length ? (
+            {discoveredWorlds.length ? (
               <div className="world-node-grid">
-                {lobby.map((planet) => (
+                {visibleWorlds.map((planet) => {
+                  const full = planet.playerCount >= planet.maxPlayers;
+                  return (
                   <article className="world-signal-card" key={planet.planetId}>
                     <span className={`scanned-world ${planet.biome}`} aria-hidden="true"><i /></span>
                     <div className="world-signal-copy">
@@ -139,17 +184,25 @@ export default function PlanetLobby({
                     <div className="ecosystem-slots" aria-label={`${planet.playerCount} of ${planet.maxPlayers} slots filled`}>
                       {Array.from({length: planet.maxPlayers}, (_, slot) => <i key={slot} className={slot < planet.playerCount ? "filled" : ""} />)}
                     </div>
-                    <button type="button" disabled={!connected || Boolean(busy)} onClick={() => setJoinPlanet(planet)}>Deploy founder <span>→</span></button>
+                    <button type="button" disabled={full || !connected || Boolean(busy)} onClick={() => setJoinPlanet(planet)}>{full ? "World full" : "Deploy founder"} <span>→</span></button>
                   </article>
-                ))}
+                  );
+                })}
+                {visibleWorlds.length < discoveredWorlds.length ? (
+                  <button
+                    className="show-more-worlds"
+                    type="button"
+                    onClick={() => setVisibleWorldCount((count) => count + INITIAL_WORLD_LIMIT)}
+                  >Show {Math.min(INITIAL_WORLD_LIMIT, discoveredWorlds.length - visibleWorlds.length)} more worlds <span>↓</span></button>
+                ) : null}
               </div>
             ) : (
               <div className="no-world-signal">
                 <div className={`scan-orb ${selectedBiome.id}`} aria-hidden="true"><i /><b /><span>+</span></div>
-                <small>Scan complete · no signals</small>
-                <h2>No active biospheres detected</h2>
-                <p>Initialize a hostile world, establish its first species, and invite another wallet into the ecosystem.</p>
-                <button type="button" onClick={beginCampaign}>{connected ? "Initialize first biosphere" : "Link commander wallet"}<span>→</span></button>
+                <small>Scan complete · no matching signals</small>
+                <h2>{lobby.length ? "No worlds match this scan" : "No active biospheres detected"}</h2>
+                <p>{lobby.length ? "Search by another world name or ID, or include every waiting world." : "Initialize a hostile world, establish its first species, and invite another wallet into the ecosystem."}</p>
+                <button type="button" onClick={lobby.length ? () => { setWorldQuery(""); setWorldFilter("all"); setVisibleWorldCount(INITIAL_WORLD_LIMIT); } : beginCampaign}>{lobby.length ? "Clear scanner filters" : connected ? "Initialize first biosphere" : "Link commander wallet"}<span>→</span></button>
               </div>
             )}
           </div>
