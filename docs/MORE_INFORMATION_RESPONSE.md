@@ -98,7 +98,7 @@ The fresh-process readback returned:
 - GenVM lint: passed (`3` lint passes; contract schema: `17` methods, `7` view, `10` write)
 - GenVM typecheck: passed with `0` errors and `0` warnings
 - Direct contract tests: `9 passed`
-- Frontend unit/regression tests: `41 passed` across `11` files
+- Frontend unit/regression tests: `44 passed` across `12` files
 - TypeScript typecheck: passed
 - Production Vite build: passed
 - Contextual desktop/mobile UI checks: passed

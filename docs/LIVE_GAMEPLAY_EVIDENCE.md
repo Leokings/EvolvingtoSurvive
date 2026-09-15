@@ -15,6 +15,19 @@ This is submission-ready evidence from the deployed EvolvingtoSurvive v2 contrac
 
 The two test-only wallets are locally recoverable, but their private keys are deliberately excluded from Git and from this evidence.
 
+## What changed
+
+| Area | Earlier state or problem | What changed and how it is proven |
+|---|---|---|
+| Portrait transaction submission | The connected-wallet `verify_portrait` path converted RPC quantities to JavaScript `bigint`, so JSON serialization could fail before `eth_sendTransaction`. | The wallet boundary now recursively normalizes unexpected `bigint` values to exact hexadecimal quantities without rounding or changing the encoded application calldata. This repair is deployed in [`b5a714d`](https://github.com/Leokings/EvolvingtoSurvive/commit/b5a714d). |
+| Portrait retry lifecycle | A submission failure could force another generation instead of preserving the image that was already created. | The candidate is cached before wallet submission and removed only after successful contract execution plus readback. RPC/wallet retry reuses the identical candidate ID, URL, SHA-256, and bytes; a new candidate is allowed only after a real validator rejection. |
+| Regression coverage | The exact large, nested `verify_portrait` boundary and retry-after-submission failure were not covered. | Tests now encode a 65,536-byte candidate, both ancestor byte arrays, and quantities above JavaScript's safe-integer range, then compare the inner calldata byte-for-byte. A second test reproduces the previous BigInt error and proves the generator runs once across retry. |
+| World-list clutter | Repeatedly created waiting worlds could crowd the lobby and make a joinable world hard to locate. | The live lobby now defaults to worlds with open slots, supports name/ID search and `Open slots` / `Ready` / `All waiting` filters, initially shows six results with `Show more`, and prevents joining full worlds. This change is in [`31fafa2`](https://github.com/Leokings/EvolvingtoSurvive/commit/31fafa2). |
+| Two-wallet proof | The earlier portrait proof stopped after founders became canonical and the world became active. | The same recoverable creator and challenger wallets completed independent commit, lock, and reveal actions through all four eras. Every recorded write was checked for both `FINALIZED` lifecycle status and `SUCCESS` execution. |
+| World ending | The preceding gameplay evidence stopped at `active`, era `4`, revision `31`, with `25` transactions and no winner. | Era 4 was played normally. The final reveal ended the world at `complete`, revision `41`, recorded eight revealed actions and the creator winner, and raised the evidence ledger to `33` transactions. The final ancestry portrait is also canonical. This continuation is in [`f0d5794`](https://github.com/Leokings/EvolvingtoSurvive/commit/f0d5794). |
+
+The final continuation did not redeploy or replace the intelligent contract: the eight new transactions exercised the same deployed StudioNet address listed above.
+
 ## Transaction history
 
 Every transaction below reached `FINALIZED` and its leader receipt reported `SUCCESS`. Portrait validation outcomes are reported separately because a successful contract execution can legitimately record a rejected image candidate.
